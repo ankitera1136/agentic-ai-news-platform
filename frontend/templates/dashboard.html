@@ -261,6 +261,61 @@
             background: rgba(239, 68, 68, 0.25);
             color: #fff;
         }
+        /* Career Profile tab */
+        .profile-form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+            max-width: 720px;
+        }
+        .profile-form-wide { grid-column: 1 / -1; }
+        .chip-input {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            min-height: 46px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            cursor: text;
+        }
+        .chip-input:focus-within { border-color: var(--secondary); }
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            font-size: 13px;
+            border-radius: 999px;
+            background: rgba(99, 102, 241, 0.18);
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            color: #e0e7ff;
+        }
+        .chip-remove {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            font-size: 14px;
+            line-height: 1;
+            padding: 0;
+            opacity: 0.7;
+        }
+        .chip-remove:hover { opacity: 1; }
+        .chip-text-input {
+            flex: 1;
+            min-width: 140px;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: inherit;
+            font: inherit;
+            padding: 4px;
+        }
+        .field-hint { color: var(--text-muted); font-size: 12px; margin-top: 6px; }
+        @media (max-width: 640px) { .profile-form-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -312,6 +367,11 @@
                         <li>
                             <button class="dash-nav-btn" onclick="switchDashTab('tabAccount', this)">
                                 <i class="fa-solid fa-user-gear"></i> Account Settings
+                            </button>
+                        </li>
+                        <li>
+                            <button class="dash-nav-btn" onclick="switchDashTab('tabProfile', this)">
+                                <i class="fa-solid fa-graduation-cap"></i> Career Profile
                             </button>
                         </li>
                         <li id="adminNavBtn" style="display: none;">
@@ -396,6 +456,52 @@
                             <input type="text" id="accRole" class="input-field" disabled style="opacity: 0.7; cursor: not-allowed; font-family: var(--font-mono);">
                         </div>
                     </div>
+                </div>
+                <!-- TAB 4: CAREER PROFILE -->
+                <div id="tabProfile" class="dash-panel" style="display: none;">
+                    <div class="panel-header">
+                        <div>
+                            <h3 class="panel-title"><i class="fa-solid fa-graduation-cap" style="color: var(--secondary);"></i> Career Profile</h3>
+                            <p style="color: var(--text-muted); font-size: 13.5px; margin-top: 4px;">Tell us about your studies and goals. This is optional and only visible to you.</p>
+                        </div>
+                        <button id="profileSaveBtn" onclick="saveCareerProfile()" class="btn btn-primary" style="padding: 10px 20px;">
+                            <i class="fa-solid fa-floppy-disk"></i> Save Profile
+                        </button>
+                    </div>
+                    <div class="profile-form-grid">
+                        <div class="input-group">
+                            <span class="input-label">Branch</span>
+                            <input type="text" id="profBranch" class="input-field" maxlength="100" placeholder="e.g. Computer Science">
+                        </div>
+                        <div class="input-group">
+                            <span class="input-label">College</span>
+                            <input type="text" id="profCollege" class="input-field" maxlength="150" placeholder="e.g. NIT Kurukshetra">
+                        </div>
+                        <div class="input-group">
+                            <span class="input-label">Year of Study (1-6)</span>
+                            <input type="number" id="profYear" class="input-field" min="1" max="6" step="1" placeholder="e.g. 4">
+                        </div>
+                        <div class="input-group">
+                            <span class="input-label">Graduation Year</span>
+                            <input type="number" id="profGradYear" class="input-field" min="2020" max="2040" step="1" placeholder="e.g. 2027">
+                        </div>
+                        <div class="input-group profile-form-wide">
+                            <span class="input-label">Skills</span>
+                            <div class="chip-input" id="chipSkills"></div>
+                            <div class="field-hint">Type a skill and press Enter or comma. Up to 50. Aliases like "js" become "JavaScript".</div>
+                        </div>
+                        <div class="input-group profile-form-wide">
+                            <span class="input-label">Target Companies</span>
+                            <div class="chip-input" id="chipCompanies"></div>
+                            <div class="field-hint">Up to 20. Names like "TCS" are matched to their full company name.</div>
+                        </div>
+                        <div class="input-group profile-form-wide">
+                            <span class="input-label">Target Roles</span>
+                            <div class="chip-input" id="chipRoles"></div>
+                            <div class="field-hint">Up to 10, for example "Backend Developer".</div>
+                        </div>
+                    </div>
+                    <div id="profileSaveAlert" class="alert-box" style="margin-top: 20px; display: none;"></div>
                 </div>
 
             </section>
@@ -515,7 +621,150 @@
             window.location.href = '/';
         }
 
+        // ---- Career Profile tab ----
+        function createChipInput(containerId, maxItems, maxLen) {
+            const container = document.getElementById(containerId);
+            let items = [];
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'chip-text-input';
+            input.maxLength = maxLen;
+            input.placeholder = 'Type and press Enter';
+            function render() {
+                container.querySelectorAll('.chip').forEach(el => el.remove());
+                items.forEach((text, index) => {
+                    const chip = document.createElement('span');
+                    chip.className = 'chip';
+                    const label = document.createElement('span');
+                    label.textContent = text;              // textContent: user text is never parsed as HTML
+                    const remove = document.createElement('button');
+                    remove.type = 'button';
+                    remove.className = 'chip-remove';
+                    remove.setAttribute('aria-label', 'Remove ' + text);
+                    remove.textContent = '\u00d7';
+                    remove.addEventListener('click', () => { items.splice(index, 1); render(); });
+                    chip.appendChild(label);
+                    chip.appendChild(remove);
+                    container.insertBefore(chip, input);
+                });
+            }
+            function addFromInput() {
+                const parts = input.value.split(',').map(p => p.trim()).filter(Boolean);
+                parts.forEach(part => {
+                    const exists = items.some(i => i.toLowerCase() === part.toLowerCase());
+                    if (!exists && items.length < maxItems) items.push(part.slice(0, maxLen));
+                });
+                input.value = '';
+                render();
+            }
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault();
+                    addFromInput();
+                } else if (e.key === 'Backspace' && !input.value && items.length) {
+                    items.pop();
+                    render();
+                }
+            });
+            input.addEventListener('blur', addFromInput);
+            container.addEventListener('click', () => input.focus());
+            container.appendChild(input);
+            return {
+                get: () => { addFromInput(); return items.slice(); },
+                set: (list) => { items = (list || []).slice(0, maxItems); input.value = ''; render(); }
+            };
+        }
+        let chipSkills, chipCompanies, chipRoles;
+        function showProfileAlert(ok, message) {
+            const box = document.getElementById('profileSaveAlert');
+            box.style.display = 'block';
+            box.style.background = ok ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)';
+            box.style.border = ok ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)';
+            box.style.color = ok ? '#a7f3d0' : '#fecaca';
+            box.textContent = message;
+        }
+        function describeProfileError(body) {
+            // FastAPI validation errors look like {detail: [{loc: [...], msg: "..."}]}; others {detail: "text"}
+            if (body && Array.isArray(body.detail)) {
+                return body.detail.map(d => {
+                    const field = Array.isArray(d.loc) ? d.loc.filter(p => p !== 'body').join('.') : '';
+                    const msg = String(d.msg || '').replace(/^Value error, /, '');
+                    return field && !msg.startsWith(field) ? field + ': ' + msg : msg;
+                }).join(' | ');
+            }
+            if (body && typeof body.detail === 'string') return body.detail;
+            return 'Could not save your profile.';
+        }
+        function handleProfileUnauthorized() {
+            localStorage.removeItem('authToken');
+            window.location.href = '/';
+        }
+        function fillProfileForm(profile) {
+            document.getElementById('profBranch').value = profile.branch || '';
+            document.getElementById('profCollege').value = profile.college || '';
+            document.getElementById('profYear').value = profile.year_of_study == null ? '' : profile.year_of_study;
+            document.getElementById('profGradYear').value = profile.graduation_year == null ? '' : profile.graduation_year;
+            chipSkills.set(profile.skills);
+            chipCompanies.set(profile.target_companies);
+            chipRoles.set(profile.target_roles);
+        }
+        async function loadCareerProfile() {
+            if (!token) return;
+            chipSkills = createChipInput('chipSkills', 50, 40);
+            chipCompanies = createChipInput('chipCompanies', 20, 100);
+            chipRoles = createChipInput('chipRoles', 10, 60);
+            try {
+                const res = await fetch('/api/profile', { headers: { 'Authorization': `Bearer ${token}` } });
+                if (res.status === 401) return handleProfileUnauthorized();
+                if (res.ok) fillProfileForm(await res.json());
+                else showProfileAlert(false, 'Could not load your profile.');
+            } catch (err) {
+                console.error('Failed to load career profile:', err);
+                showProfileAlert(false, 'Could not load your profile.');
+            }
+        }
+        function intOrNull(value) {
+            const trimmed = String(value).trim();
+            return trimmed === '' ? null : Number(trimmed);
+        }
+        async function saveCareerProfile() {
+            const btn = document.getElementById('profileSaveBtn');
+            const payload = {
+                branch: document.getElementById('profBranch').value.trim() || null,
+                college: document.getElementById('profCollege').value.trim() || null,
+                year_of_study: intOrNull(document.getElementById('profYear').value),
+                graduation_year: intOrNull(document.getElementById('profGradYear').value),
+                skills: chipSkills.get(),
+                target_companies: chipCompanies.get(),
+                target_roles: chipRoles.get()
+            };
+            btn.disabled = true;
+            try {
+                const res = await fetch('/api/profile', {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (res.status === 401) return handleProfileUnauthorized();
+                let body = null;
+                try { body = await res.json(); } catch (e) { /* non-JSON error body */ }
+                if (res.ok) {
+                    fillProfileForm(body);                 // show the server's cleaned, canonical values
+                    showProfileAlert(true, 'Career profile saved.');
+                } else if (res.status === 429) {
+                    showProfileAlert(false, 'Too many saves. Please wait a minute and try again.');
+                } else {
+                    showProfileAlert(false, describeProfileError(body));
+                }
+            } catch (err) {
+                console.error('Failed to save career profile:', err);
+                showProfileAlert(false, 'Network error. Please try again.');
+            } finally {
+                btn.disabled = false;
+            }
+        }
         document.addEventListener('DOMContentLoaded', initDashboard);
+        document.addEventListener('DOMContentLoaded', loadCareerProfile);
     </script>
 </body>
 </html>

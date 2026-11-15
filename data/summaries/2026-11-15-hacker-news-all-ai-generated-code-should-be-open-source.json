@@ -1,0 +1,9 @@
+{
+  "title": "All AI-generated code should be Open Source",
+  "link": "https://jakub.jankiewicz.org/blog/ai-code-open-source/",
+  "summary": "<p>Article URL: <a href=\"https://jakub.jankiewicz.org/blog/ai-code-open-source/\">https://jakub.jankiewicz.org/blog/ai-code-open-source/</a></p>\n<p>Comments URL: <a href=\"https://news.ycombinator.com/item?id=50507303\">https://news.ycombinator.com/item?id=50507303</a></p>\n<p>Points: 87</p>\n<p># Comments: 59</p>",
+  "published": "Sun, 15 Nov 2026 14:46:58 +0000",
+  "image_url": "https://jakub.jankiewicz.org/img/en/ai-code-open-source.png",
+  "llm_summary": "The article argues that any code produced by AI tools—whether from large‑language models, code‑generation assistants, or automated refactoring utilities—should be released under an open‑source license, because the underlying models are trained on publicly available code and developers benefit from transparent, reusable outputs. Commenters largely agree, noting that open‑sourcing AI‑generated snippets improves security, reproducibility, and community trust, while also highlighting practical concerns such",
+  "source": "Hacker News"
+}

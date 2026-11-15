@@ -5,7 +5,7 @@ except ImportError:
     from sqlalchemy.ext.declarative import declarative_base  # SQLAlchemy 1.x
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 Base = declarative_base()
@@ -40,6 +40,9 @@ class User(Base):
     # Relationships
     interests = relationship("Category", secondary=user_interests, back_populates="users")
     subscriptions = relationship("UserSubscription", back_populates="user")
+    profile = relationship(
+        "StudentProfile", uselist=False, cascade="all, delete-orphan", back_populates="user"
+    )
 
 class Category(Base):
     __tablename__ = "categories"
@@ -206,3 +209,24 @@ class CareerSignal(Base):
     confidence = Column(Float, nullable=False)
     evidence_quote = Column(Text, nullable=True)
     extracted_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class StudentProfile(Base):
+    """Optional career profile a student fills in. One row per user, created by PUT /api/profile."""
+    __tablename__ = "student_profiles"
+
+    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    branch = Column(String, nullable=True)
+    college = Column(String, nullable=True)
+    year_of_study = Column(Integer, nullable=True)  # 1-6
+    graduation_year = Column(Integer, nullable=True)
+    skills = Column(JSON, nullable=False, default=list)
+    target_companies = Column(JSON, nullable=False, default=list)
+    target_roles = Column(JSON, nullable=False, default=list)
+    updated_at = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
+
+    user = relationship("User", back_populates="profile")

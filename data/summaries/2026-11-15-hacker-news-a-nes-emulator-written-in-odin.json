@@ -1,0 +1,9 @@
+{
+  "title": "A NES emulator written in Odin",
+  "link": "https://lucypero.com/lucynes.html",
+  "summary": "<p>Article URL: <a href=\"https://lucypero.com/lucynes.html\">https://lucypero.com/lucynes.html</a></p>\n<p>Comments URL: <a href=\"https://news.ycombinator.com/item?id=50506588\">https://news.ycombinator.com/item?id=50506588</a></p>\n<p>Points: 9</p>\n<p># Comments: 0</p>",
+  "published": "Sun, 15 Nov 2026 12:51:47 +0000",
+  "image_url": "",
+  "llm_summary": "The post showcases a fully‑functional Nintendo Entertainment System (NES) emulator written in the Odin programming language, demonstrating Odin’s suitability for low‑level, performance‑critical projects. The author walks through the emulator’s architecture, key implementation details, and how Odin’s modern syntax and safety features simplify classic emulator development. This serves as both a proof‑of‑concept for Odin and a resource for anyone interested in retro‑gaming or systems programming.",
+  "source": "Hacker News"
+}

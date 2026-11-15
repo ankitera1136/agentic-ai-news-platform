@@ -1,0 +1,9 @@
+{
+  "title": "Understanding Positional Embeddings in Modern LLMs",
+  "link": "https://magazine.sebastianraschka.com/p/understanding-positional-embeddings",
+  "summary": "<p>Article URL: <a href=\"https://magazine.sebastianraschka.com/p/understanding-positional-embeddings\">https://magazine.sebastianraschka.com/p/understanding-positional-embeddings</a></p>\n<p>Comments URL: <a href=\"https://news.ycombinator.com/item?id=50506376\">https://news.ycombinator.com/item?id=50506376</a></p>\n<p>Points: 28</p>\n<p># Comments: 0</p>",
+  "published": "Sun, 15 Nov 2026 12:14:06 +0000",
+  "image_url": "https://substackcdn.com/image/fetch/$s_!8RKL!,w_1200,h_675,c_fill,f_jpg,q_auto:good,fl_progressive:steep,g_auto/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fb461a2cb-11ab-474a-affe-0ee99e5a8782_2850x2777.png",
+  "llm_summary": "Positional embeddings are the technique that lets large language models (LLMs) understand the order of words, since their core architecture processes tokens without any inherent sequence information. The article walks through the evolution from simple sinusoidal embeddings to learned and rotary (RoPE) methods, explaining how each approach encodes position and why newer schemes improve handling of long contexts and downstream tasks. In short, without",
+  "source": "Hacker News"
+}
