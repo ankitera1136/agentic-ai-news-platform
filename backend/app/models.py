@@ -146,7 +146,7 @@ class PairCache(Base):
 
 class ClusterLog(Base):
     __tablename__ = "cluster_log"
-    
+
     id = Column(Integer, primary_key=True, autoincrement=True)
     article_id = Column(String, nullable=False, index=True)
     decision = Column(String, nullable=False)
@@ -154,3 +154,55 @@ class ClusterLog(Base):
     best_score = Column(Float, nullable=True)
     layer = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
+
+
+class ArticleBody(Base):
+    """Cached full article body used only for internal CareerRadar extraction/auditing.
+
+    Never expose body_text through an API or UI.
+    """
+    __tablename__ = "article_bodies"
+
+    article_id = Column(String, ForeignKey("articles.id", ondelete="CASCADE"), primary_key=True)
+    body_text = Column(Text, nullable=True)
+    fetched_at = Column(DateTime(timezone=True), default=datetime.utcnow)
+    status = Column(String, nullable=False, default="failed")  # ok | failed | paywalled | too_short
+    http_status = Column(Integer, nullable=True)
+    error = Column(Text, nullable=True)
+    attempts = Column(Integer, nullable=False, default=0)
+
+
+class CareerExtraction(Base):
+    """Idempotency ledger for CareerRadar per-article extraction."""
+    __tablename__ = "career_extractions"
+
+    article_id = Column(String, ForeignKey("articles.id", ondelete="CASCADE"), primary_key=True)
+    content_hash = Column(String, nullable=False)
+    text_source = Column(String, nullable=False, default="full_body")  # full_body | stored_summary
+    status = Column(String, nullable=False, default="pending")  # succeeded | failed
+    attempts = Column(Integer, nullable=False, default=0)
+    model_used = Column(String, nullable=True)
+    signals_count = Column(Integer, nullable=False, default=0)
+    error = Column(Text, nullable=True)
+    extracted_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class CareerSignal(Base):
+    """One structured career signal extracted from one article."""
+    __tablename__ = "career_signals"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    source_article_id = Column(
+        String, ForeignKey("articles.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    company = Column(String, nullable=False, index=True)
+    company_raw = Column(String, nullable=True)
+    action = Column(String, nullable=False, index=True)
+    timing = Column(String, nullable=False, default="current", server_default="current")  # current | past_context | planned
+    count = Column(Integer, nullable=True)
+    location_city = Column(String, nullable=True)
+    location_country = Column(String, nullable=True)
+    skills_mentioned = Column(JSON, nullable=True)
+    confidence = Column(Float, nullable=False)
+    evidence_quote = Column(Text, nullable=True)
+    extracted_at = Column(DateTime(timezone=True), server_default=func.now())

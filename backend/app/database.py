@@ -75,7 +75,17 @@ def init_database():
         upgrade()
     except Exception as e:
         print(f"[INIT DB WARNING] Story clustering migration note: {e}")
-    
+
+    # CareerRadar internal tables (article bodies, extraction ledger, signals)
+    try:
+        try:
+            from career.migrate import upgrade as career_upgrade
+        except ImportError:
+            from ...career.migrate import upgrade as career_upgrade
+        career_upgrade()
+    except Exception as e:
+        print(f"[INIT DB WARNING] CareerRadar migration note: {e}")
+
     # Auto-migration: Ensure columns exist
     try:
         from sqlalchemy import text

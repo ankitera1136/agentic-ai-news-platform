@@ -103,6 +103,17 @@ def _run_scrape_sync():
         fetch_and_save_all_sources()
         categorizer.sync_articles_from_files()
         categorizer.deduplicate_existing_database()
+
+        # CareerRadar runs only after clustering/deduplication, and only when enabled.
+        # On Vercel it uses already-cached bodies and the smaller cron batch limit.
+        if os.getenv("CAREER_RADAR_ENABLED", "false").strip().lower() in ("1", "true", "yes", "on"):
+            try:
+                from backend.services.career import career_extractor
+                career_stats = career_extractor.process_pending_articles()
+                print(f"[CAREER RADAR] {career_stats.as_dict()}")
+            except Exception as career_error:
+                print(f"[CAREER RADAR WARNING] {career_error}")
+
         categorizer.cleanup_old_articles(days=retention_days)
     except Exception as e:
         print(f"[SCHEDULER ERROR]: {e}")

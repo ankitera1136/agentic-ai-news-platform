@@ -63,6 +63,9 @@ _CACHED_LIVE_MODELS = []
 _CACHE_TIMESTAMP = 0
 _CACHE_TTL_SECONDS = 900  # 15 minutes
 
+# Models already reported as unavailable, so the warning prints once per process
+_WARNED_UNAVAILABLE_MODELS = set()
+
 
 def get_live_groq_models(api_key: str = None) -> list:
     """
@@ -191,8 +194,10 @@ def call_groq(api_key: str, payload: dict, timeout: int = 25, preferred_model: s
                 # 400 / 404 Model deprecated, not found or invalid -> immediately try next model
                 if response.status_code in (400, 404):
                     err_text = response.text.lower()
-                    if any(kw in err_text for kw in ("not found", "deprecated", "does not exist", "model_not_found", "invalid model")):
-                        print(f"[GROQ] Model '{model}' unavailable/deprecated -> Trying next fallback model.")
+                    if any(kw in err_text for kw in ("not found", "deprecated", "does not exist", "model_not_found", "invalid model", "decommission", "no longer supported")):
+                        if model not in _WARNED_UNAVAILABLE_MODELS:
+                            _WARNED_UNAVAILABLE_MODELS.add(model)
+                            print(f"[GROQ] Model '{model}' unavailable/deprecated -> Trying next fallback model.")
                         last_error = f"Model '{model}' deprecated or not found"
                         # Remove from in-memory cache if present
                         global _CACHED_LIVE_MODELS

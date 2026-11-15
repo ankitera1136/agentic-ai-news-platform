@@ -72,3 +72,5 @@ PROJECT_REPORT.txt
 COLLEGE_MIDTERM_PROJECT_REPORT.md
 LITERATURE_REVIEW.md
 data/summaries/*.md
+tech_news.db-shm
+tech_news.db-wal
