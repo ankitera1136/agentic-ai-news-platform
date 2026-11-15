@@ -58,6 +58,10 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 from backend.app.routers.profile import router as profile_router
 app.include_router(profile_router)
 
+# CareerRadar skill demand and skill-gap routes (/api/career/*)
+from backend.app.routers.career import router as career_router
+app.include_router(career_router)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -601,6 +605,11 @@ async def get_personalized_articles(
 async def dashboard(request: Request):
     """Serve the user dashboard for managing digest preferences"""
     return templates.TemplateResponse(request=request, name="dashboard.html", context={})
+
+@app.get("/career", response_class=HTMLResponse)
+async def career_page(request: Request):
+    """Serve the CareerRadar page (skills in demand and the signed-in user's skill gap)"""
+    return templates.TemplateResponse(request=request, name="career.html", context={})
 
 from datetime import timezone, timedelta
 

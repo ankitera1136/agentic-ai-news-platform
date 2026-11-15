@@ -1,0 +1,9 @@
+{
+  "title": "Emacs Is My Browser",
+  "link": "https://joshblais.com/blog/emacs-as-my-browser/",
+  "summary": "<p>Article URL: <a href=\"https://joshblais.com/blog/emacs-as-my-browser/\">https://joshblais.com/blog/emacs-as-my-browser/</a></p>\n<p>Comments URL: <a href=\"https://news.ycombinator.com/item?id=50507553\">https://news.ycombinator.com/item?id=50507553</a></p>\n<p>Points: 4</p>\n<p># Comments: 0</p>",
+  "published": "Sun, 15 Nov 2026 15:21:21 +0000",
+  "image_url": "https://joshblais.com/og-images/emacs-as-my-browser.png",
+  "llm_summary": "The post explains how the author configures Emacs to serve as their primary web‑browser, leveraging its built‑in `eww` mode along with custom keybindings, Org‑mode integration, and external tools (e.g., `w3m`, `",
+  "source": "Hacker News"
+}

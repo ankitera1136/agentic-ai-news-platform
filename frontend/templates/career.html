@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareerRadar — TechCore</title>
+    <!-- Google Fonts & FontAwesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css?v=3.4">
+    <style>
+        :root {
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        .career-page {
+            padding-top: 110px;
+            margin-bottom: 80px;
+        }
+        .career-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .career-title {
+            font-family: var(--font-heading);
+            font-size: 32px;
+            font-weight: 800;
+            color: #ffffff;
+        }
+        .career-subtitle {
+            color: var(--text-muted);
+            font-size: 14.5px;
+            margin-top: 6px;
+            max-width: 680px;
+        }
+        .days-selector {
+            display: inline-flex;
+            gap: 6px;
+            padding: 4px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+        }
+        .days-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font: inherit;
+            font-size: 13.5px;
+            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .days-btn:hover { color: #ffffff; }
+        .days-btn.active {
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+            color: #ffffff;
+        }
+        .inferred-note {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 14px 18px;
+            margin-bottom: 28px;
+            font-size: 13.5px;
+            line-height: 1.5;
+            color: #fde68a;
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 12px;
+        }
+        .inferred-note strong { color: #fcd34d; }
+        .basis-line {
+            font-family: var(--font-mono);
+            font-size: 12.5px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        .career-section {
+            background: rgba(12, 10, 30, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 28px;
+            margin-bottom: 28px;
+            backdrop-filter: blur(16px);
+        }
+        .section-title {
+            font-family: var(--font-heading);
+            font-size: 20px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+        .section-sub {
+            color: var(--text-muted);
+            font-size: 13.5px;
+            margin-bottom: 18px;
+        }
+        .demand-list { display: flex; flex-direction: column; gap: 10px; }
+        .demand-row {
+            display: grid;
+            grid-template-columns: 36px minmax(120px, 220px) 1fr;
+            gap: 14px;
+            align-items: center;
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 12px;
+        }
+        .demand-rank {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .demand-skill { font-weight: 700; color: #ffffff; }
+        .demand-meta { font-size: 12.5px; color: var(--text-muted); margin-top: 2px; }
+        .chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 10px;
+            font-size: 12.5px;
+            border-radius: 999px;
+            background: rgba(99, 102, 241, 0.18);
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            color: #e0e7ff;
+        }
+        .chip-company {
+            background: rgba(6, 182, 212, 0.12);
+            border-color: rgba(6, 182, 212, 0.35);
+            color: #a5f3fc;
+        }
+        .chip-matched {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: rgba(16, 185, 129, 0.4);
+            color: #a7f3d0;
+        }
+        .chip-missing {
+            background: rgba(245, 158, 11, 0.12);
+            border-color: rgba(245, 158, 11, 0.4);
+            color: #fde68a;
+        }
+        .chip-count { opacity: 0.75; margin-left: 6px; font-family: var(--font-mono); font-size: 11.5px; }
+        .gap-columns {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        .gap-heading {
+            font-size: 14px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+        .signal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+        }
+        .signal-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 14px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .signal-top { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+        .signal-company { font-weight: 700; font-size: 16px; color: #ffffff; }
+        .signal-badge {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: rgba(168, 85, 247, 0.18);
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            color: #e9d5ff;
+            white-space: nowrap;
+        }
+        .signal-meta { font-size: 12.5px; color: var(--text-muted); display: flex; flex-wrap: wrap; gap: 6px 14px; }
+        .signal-quote { font-size: 13px; color: #d4d4d8; font-style: italic; line-height: 1.5; }
+        .signal-sources { font-size: 12.5px; }
+        .signal-sources a { color: var(--secondary); text-decoration: none; }
+        .signal-sources a:hover { text-decoration: underline; }
+        .cta-box {
+            text-align: center;
+            padding: 36px 20px;
+            color: var(--text-muted);
+            font-size: 14.5px;
+            line-height: 1.6;
+        }
+        .cta-box i.cta-icon { font-size: 32px; margin-bottom: 12px; display: block; opacity: 0.6; }
+        .cta-box .btn { margin-top: 16px; display: inline-flex; }
+        .empty-state { text-align: center; padding: 30px 16px; color: var(--text-muted); font-size: 14.5px; }
+        .error-state { color: #fecaca; }
+        @media (max-width: 800px) {
+            .gap-columns { grid-template-columns: 1fr; }
+            .demand-row { grid-template-columns: 28px 1fr; }
+            .demand-row .chip-row { grid-column: 1 / -1; }
+        }
+        /* Tabs and Hiring vs Layoffs panel */
+        .tab-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-muted);
+            font: inherit;
+            font-size: 15px;
+            font-weight: 600;
+            padding: 12px 18px;
+            cursor: pointer;
+            margin-bottom: -1px;
+        }
+        .tab-btn:hover { color: #ffffff; }
+        .tab-btn.active { color: #ffffff; border-bottom-color: var(--secondary); }
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px 24px;
+            align-items: flex-end;
+            margin-bottom: 20px;
+        }
+        .filter-group { display: flex; flex-direction: column; gap: 6px; }
+        .filter-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+        .filter-select {
+            background: rgba(255, 255, 255, 0.06);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 9px 12px;
+            font: inherit;
+            font-size: 14px;
+        }
+        .filter-select option { background: #12102b; color: #ffffff; }
+        .map-box {
+            height: 460px;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.03);
+        }
+        .chart-box {
+            position: relative;
+            height: 320px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.03);
+            padding: 12px;
+        }
+        .lib-fallback {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            color: #fecaca;
+            font-size: 14px;
+        }
+        .legend-row { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 10px; font-size: 12.5px; color: var(--text-muted); }
+        .legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
+        .location-note { margin-top: 14px; font-size: 13.5px; color: var(--text-muted); line-height: 1.6; }
+        .location-note strong { color: #ffffff; }
+        .board-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+        .board-heading { font-size: 15px; font-weight: 700; color: #ffffff; margin-bottom: 12px; }
+        .board-list { display: flex; flex-direction: column; gap: 12px; }
+        .board-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 14px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .board-card.cuts { border-left: 3px solid #ef4444; }
+        .board-card.growth { border-left: 3px solid #10b981; }
+        .net-badge { font-family: var(--font-mono); font-size: 11px; padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
+        .net-growing { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #a7f3d0; }
+        .net-cutting { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #fecaca; }
+        .net-mixed { background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); color: #fde68a; }
+        .popup-title { font-weight: 700; margin-bottom: 4px; }
+        .popup-line { font-size: 12.5px; margin: 2px 0; }
+        @media (max-width: 800px) { .board-columns { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <a href="/" class="brand">
+                <i class="fa-solid fa-bolt-lightning" style="color: var(--secondary);"></i>
+                TECH<span>CORE</span>
+            </a>
+
+            <ul class="nav-links">
+                <li><a href="/" class="nav-link"><i class="fa-solid fa-compass"></i> Explore</a></li>
+                <li><a href="/chat" class="nav-link"><i class="fa-solid fa-brain"></i> AI Assistant</a></li>
+                <li><a href="/career" class="nav-link active"><i class="fa-solid fa-bullseye"></i> CareerRadar</a></li>
+                <li><a href="/dashboard" class="nav-link"><i class="fa-solid fa-sliders"></i> Profile & Dashboard</a></li>
+            </ul>
+
+            <div class="navbar-actions">
+                <a href="/" class="btn btn-secondary"><i class="fa-solid fa-arrow-left"></i> Back to News</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container career-page">
+        <div class="tab-bar" role="tablist">
+            <button type="button" class="tab-btn active" id="tabBtnSkills" data-tab="skills" role="tab">
+                <i class="fa-solid fa-code"></i> Skills
+            </button>
+            <button type="button" class="tab-btn" id="tabBtnMarket" data-tab="market" role="tab">
+                <i class="fa-solid fa-chart-line"></i> Hiring vs Layoffs
+            </button>
+        </div>
+
+        <div id="panelSkills">
+        <div class="career-header">
+            <div>
+                <h1 class="career-title"><i class="fa-solid fa-bullseye" style="color: var(--secondary);"></i> CareerRadar</h1>
+                <p class="career-subtitle">Skills that tech companies are hiring for, based on the hiring, expansion and new-office news TechCore collects.</p>
+                <div class="basis-line" id="basisLine">Loading…</div>
+            </div>
+            <div class="days-selector" id="daysSelector" role="group" aria-label="Time window">
+                <button type="button" class="days-btn" data-days="7">7 days</button>
+                <button type="button" class="days-btn active" data-days="30">30 days</button>
+                <button type="button" class="days-btn" data-days="90">90 days</button>
+            </div>
+        </div>
+
+        <div class="inferred-note" id="inferredNote">
+            <i class="fa-solid fa-circle-info" style="margin-top: 2px;"></i>
+            <div><strong>Inferred from news mentions.</strong> <span id="noteText">Skill gaps are inferred from skills mentioned in news articles about hiring, expansion and new offices, not from job postings.</span></div>
+        </div>
+
+        <section class="career-section" id="demandSection">
+            <h2 class="section-title"><i class="fa-solid fa-fire" style="color: #f97316;"></i> Skills in demand</h2>
+            <p class="section-sub">Ranked by the number of different companies whose news mentions the skill.</p>
+            <div id="demandContent"><div class="empty-state">Loading…</div></div>
+        </section>
+
+        <section class="career-section" id="gapSection">
+            <h2 class="section-title"><i class="fa-solid fa-chart-simple" style="color: var(--primary);"></i> Your skill gap</h2>
+            <p class="section-sub">How your Career Profile compares with the skills above.</p>
+            <div id="gapContent"><div class="empty-state">Loading…</div></div>
+        </section>
+        </div>
+
+        <!-- Hiring vs Layoffs -->
+        <div id="panelMarket" style="display: none;">
+            <div class="career-header">
+                <div>
+                    <h1 class="career-title"><i class="fa-solid fa-chart-line" style="color: var(--secondary);"></i> Hiring vs Layoffs</h1>
+                    <p class="career-subtitle">Where tech companies are hiring, expanding or cutting jobs, according to the news TechCore collects.</p>
+                    <div class="basis-line" id="marketBasis">Loading…</div>
+                </div>
+            </div>
+
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <label class="filter-label" for="marketCountry">Country</label>
+                    <select class="filter-select" id="marketCountry">
+                        <option value="India" selected>India</option>
+                        <option value="">Global</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <span class="filter-label">Period</span>
+                    <div class="days-selector" id="marketDays" role="group" aria-label="Time window">
+                        <button type="button" class="days-btn" data-days="7">7 days</button>
+                        <button type="button" class="days-btn active" data-days="30">30 days</button>
+                        <button type="button" class="days-btn" data-days="90">90 days</button>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <span class="filter-label">Show</span>
+                    <div class="days-selector" id="marketGroup" role="group" aria-label="Signal type">
+                        <button type="button" class="days-btn active" data-group="all">All</button>
+                        <button type="button" class="days-btn" data-group="growth">Hiring</button>
+                        <button type="button" class="days-btn" data-group="cuts">Layoffs</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="inferred-note">
+                <i class="fa-solid fa-circle-info" style="margin-top: 2px;"></i>
+                <div><strong>News coverage, not official data.</strong> <span id="marketNote">This reflects news coverage, not official hiring data. A company with more signals was written about more often, not necessarily hiring or cutting more.</span></div>
+            </div>
+
+            <section class="career-section">
+                <h2 class="section-title"><i class="fa-solid fa-map-location-dot" style="color: var(--secondary);"></i> Heatmap</h2>
+                <p class="section-sub">Circle size is the number of signals in a city. Green is hiring or expansion, red is layoffs or freezes, orange is both.</p>
+                <div class="map-box" id="marketMap"><div class="lib-fallback" style="color: var(--text-muted);">Loading map…</div></div>
+                <div class="legend-row">
+                    <span><span class="legend-dot" style="background: #10b981;"></span>Hiring / expansion</span>
+                    <span><span class="legend-dot" style="background: #ef4444;"></span>Layoffs / freezes</span>
+                    <span><span class="legend-dot" style="background: #f59e0b;"></span>Both</span>
+                </div>
+                <div class="location-note" id="locationNote"></div>
+            </section>
+
+            <section class="career-section">
+                <h2 class="section-title"><i class="fa-solid fa-building" style="color: var(--primary);"></i> Company board</h2>
+                <p class="section-sub">Signal counts per company. Headcount figures only include signals that stated a number, so they are partial.</p>
+                <div id="boardContent"><div class="empty-state">Loading…</div></div>
+                <div class="basis-line" id="boardBasis" style="margin-top: 12px;"></div>
+            </section>
+
+            <section class="career-section">
+                <h2 class="section-title"><i class="fa-solid fa-chart-column" style="color: #f97316;"></i> Weekly trend</h2>
+                <p class="section-sub" id="trendSub">Hiring and expansion signals versus layoff and freeze signals, per week.</p>
+                <div class="chart-box" id="trendBox"><div class="lib-fallback" style="color: var(--text-muted);">Loading chart…</div></div>
+                <div class="basis-line" id="trendBasis" style="margin-top: 12px;"></div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        const token = localStorage.getItem('authToken');
+        let currentDays = 30;
+        let loadCounter = 0;
+
+        // ---- DOM helpers: API text is only ever inserted with textContent ----
+        function el(tag, className, text) {
+            const node = document.createElement(tag);
+            if (className) node.className = className;
+            if (text !== undefined && text !== null) node.textContent = String(text);
+            return node;
+        }
+        function clear(node) {
+            while (node.firstChild) node.removeChild(node.firstChild);
+        }
+        function safeUrl(url) {
+            // Only http(s) links are clickable; anything else (javascript:, data:) is dropped.
+            try {
+                const parsed = new URL(String(url), window.location.origin);
+                return (parsed.protocol === 'http:' || parsed.protocol === 'https:') ? parsed.href : null;
+            } catch (e) {
+                return null;
+            }
+        }
+        function chip(text, extraClass, count) {
+            const node = el('span', 'chip' + (extraClass ? ' ' + extraClass : ''), text);
+            if (count !== undefined && count !== null) node.appendChild(el('span', 'chip-count', count));
+            return node;
+        }
+        function plural(count, word) {
+            return count + ' ' + word + (count === 1 ? '' : 's');
+        }
+        function message(box, text, extraClass) {
+            clear(box);
+            box.appendChild(el('div', 'empty-state' + (extraClass ? ' ' + extraClass : ''), text));
+        }
+        function callToAction(box, text, buttonLabel) {
+            clear(box);
+            const wrap = el('div', 'cta-box');
+            wrap.appendChild(el('i', 'fa-solid fa-user-graduate cta-icon'));
+            wrap.appendChild(el('div', null, text));
+            const link = el('a', 'btn btn-primary');
+            link.href = '/dashboard';
+            link.appendChild(el('i', 'fa-solid fa-graduation-cap'));
+            link.appendChild(document.createTextNode(' ' + buttonLabel));
+            wrap.appendChild(link);
+            box.appendChild(wrap);
+        }
+
+        // ---- Skills in demand ----
+        function renderDemand(data) {
+            const box = document.getElementById('demandContent');
+            clear(box);
+            if (!data.signals) {
+                message(box, 'No hiring, expansion or new-office signals were found in this period. CareerRadar only shows what it found in recent news, so try a longer window.');
+                return;
+            }
+            if (!data.skills || !data.skills.length) {
+                message(box, 'Signals were found, but none of the articles name specific skills yet.');
+                return;
+            }
+            const list = el('div', 'demand-list');
+            data.skills.forEach((item, index) => {
+                const row = el('div', 'demand-row');
+                row.appendChild(el('div', 'demand-rank', '#' + (index + 1)));
+                const name = el('div');
+                name.appendChild(el('div', 'demand-skill', item.skill));
+                const companyLabel = item.company_count === 1 ? '1 company' : item.company_count + ' companies';
+                name.appendChild(el('div', 'demand-meta', companyLabel + ' · ' + plural(item.signal_count, 'signal')));
+                row.appendChild(name);
+                const companies = el('div', 'chip-row');
+                (item.companies || []).forEach(c => companies.appendChild(chip(c, 'chip-company')));
+                row.appendChild(companies);
+                list.appendChild(row);
+            });
+            box.appendChild(list);
+        }
+
+        // ---- Skill gap ----
+        function skillChips(items, kind) {
+            const row = el('div', 'chip-row');
+            items.forEach(item => {
+                const label = typeof item === 'string' ? item : item.skill;
+                const count = typeof item === 'string' ? null : plural(item.signal_count, 'signal');
+                row.appendChild(chip(label, kind, count));
+            });
+            return row;
+        }
+        function signalCard(signal) {
+            const card = el('div', 'signal-card');
+            const top = el('div', 'signal-top');
+            top.appendChild(el('div', 'signal-company', signal.company));
+            top.appendChild(el('span', 'signal-badge', String(signal.action || '').replace(/_/g, ' ') + ' · ' + (signal.timing || '')));
+            card.appendChild(top);
+
+            const meta = el('div', 'signal-meta');
+            const loc = signal.location || {};
+            const place = [loc.city, loc.country].filter(Boolean).join(', ');
+            if (place) meta.appendChild(el('span', null, place));
+            if (signal.count !== null && signal.count !== undefined) meta.appendChild(el('span', null, 'Count: ' + signal.count));
+            if (signal.date) meta.appendChild(el('span', null, signal.date));
+            if (typeof signal.confidence === 'number') meta.appendChild(el('span', null, 'Confidence ' + Math.round(signal.confidence * 100) + '%'));
+            if (signal.matches_target_company) meta.appendChild(el('span', null, 'Target company'));
+            card.appendChild(meta);
+
+            if (signal.matched_skills && signal.matched_skills.length) {
+                const group = el('div');
+                group.appendChild(el('div', 'demand-meta', 'You have'));
+                group.appendChild(skillChips(signal.matched_skills, 'chip-matched'));
+                card.appendChild(group);
+            }
+            if (signal.missing_skills && signal.missing_skills.length) {
+                const group = el('div');
+                group.appendChild(el('div', 'demand-meta', 'To learn'));
+                group.appendChild(skillChips(signal.missing_skills, 'chip-missing'));
+                card.appendChild(group);
+            }
+            if (signal.evidence_quote) card.appendChild(el('div', 'signal-quote', '\u201c' + signal.evidence_quote + '\u201d'));
+
+            const sources = el('div', 'signal-sources');
+            (signal.articles || []).forEach((article, index) => {
+                if (index > 0) sources.appendChild(document.createTextNode(' · '));
+                const href = safeUrl(article.link);
+                const label = (article.source ? article.source + ': ' : '') + (article.title || 'Source article');
+                if (href) {
+                    const a = el('a', null, label);
+                    a.href = href;
+                    a.target = '_blank';
+                    a.rel = 'noopener noreferrer';
+                    sources.appendChild(a);
+                } else {
+                    sources.appendChild(el('span', null, label));
+                }
+            });
+            card.appendChild(sources);
+            return card;
+        }
+        function renderGap(data) {
+            const box = document.getElementById('gapContent');
+            if (data.empty_profile) {
+                callToAction(box, 'Add your skills and target companies to your Career Profile to see which in-demand skills you already have and which to learn next.', 'Complete your Career Profile');
+                return;
+            }
+            clear(box);
+            const columns = el('div', 'gap-columns');
+
+            const matchedCol = el('div');
+            matchedCol.appendChild(el('div', 'gap-heading', 'Skills you have that are in demand'));
+            if (data.matched_skills.length) matchedCol.appendChild(skillChips(data.matched_skills, 'chip-matched'));
+            else matchedCol.appendChild(el('div', 'demand-meta', 'None of your skills were mentioned in this period.'));
+            columns.appendChild(matchedCol);
+
+            const missingCol = el('div');
+            missingCol.appendChild(el('div', 'gap-heading', 'In-demand skills you do not list yet'));
+            if (data.missing_skills.length) missingCol.appendChild(skillChips(data.missing_skills, 'chip-missing'));
+            else missingCol.appendChild(el('div', 'demand-meta', 'No missing skills found in this period.'));
+            columns.appendChild(missingCol);
+            box.appendChild(columns);
+
+            box.appendChild(el('div', 'gap-heading', 'Signals relevant to you'));
+            if (!data.relevant_signals.length) {
+                box.appendChild(el('div', 'demand-meta', 'No signals matched your target companies or skills in this period.'));
+                return;
+            }
+            const grid = el('div', 'signal-grid');
+            data.relevant_signals.forEach(signal => grid.appendChild(signalCard(signal)));
+            box.appendChild(grid);
+        }
+
+        // ---- Loading ----
+        async function loadAll() {
+            const thisLoad = ++loadCounter;     // ignore responses from a superseded selection
+            const demandBox = document.getElementById('demandContent');
+            const gapBox = document.getElementById('gapContent');
+            message(demandBox, 'Loading…');
+            message(gapBox, 'Loading…');
+
+            let demandData = null;
+            try {
+                const res = await fetch('/api/career/skill-demand?days=' + currentDays + '&limit=20');
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                demandData = await res.json();
+            } catch (err) {
+                console.error('Failed to load skill demand:', err);
+                if (thisLoad !== loadCounter) return;
+                message(demandBox, 'Could not load skills in demand. Please try again later.', 'error-state');
+                document.getElementById('basisLine').textContent = '';
+            }
+            if (thisLoad !== loadCounter) return;
+            if (demandData) {
+                document.getElementById('basisLine').textContent = demandData.basis || '';
+                if (demandData.note) document.getElementById('noteText').textContent = demandData.note;
+                renderDemand(demandData);
+            }
+
+            if (!token) {
+                callToAction(gapBox, 'Sign in and fill in your Career Profile to see your personal skill gap.', 'Open Career Profile');
+                return;
+            }
+            try {
+                const res = await fetch('/api/career/my-gap?days=' + currentDays, {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                if (thisLoad !== loadCounter) return;
+                if (res.status === 401) {
+                    localStorage.removeItem('authToken');
+                    callToAction(gapBox, 'Your session has expired. Sign in again and fill in your Career Profile to see your skill gap.', 'Open Career Profile');
+                    return;
+                }
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                renderGap(await res.json());
+            } catch (err) {
+                console.error('Failed to load skill gap:', err);
+                if (thisLoad !== loadCounter) return;
+                message(gapBox, 'Could not load your skill gap. Please try again later.', 'error-state');
+            }
+        }
+
+        document.getElementById('daysSelector').addEventListener('click', (event) => {
+            const btn = event.target.closest('.days-btn');
+            if (!btn) return;
+            currentDays = Number(btn.dataset.days);
+            document.querySelectorAll('.days-btn').forEach(b => b.classList.toggle('active', b === btn));
+            loadAll();
+        });
+        document.addEventListener('DOMContentLoaded', loadAll);
+    </script>
+    <script>
+        // ---- Tabs ----
+        (function () {
+            const panels = { skills: document.getElementById('panelSkills'), market: document.getElementById('panelMarket') };
+            const buttons = { skills: document.getElementById('tabBtnSkills'), market: document.getElementById('tabBtnMarket') };
+            let marketStarted = false;
+            window.showCareerTab = function (name) {
+                Object.keys(panels).forEach(key => {
+                    panels[key].style.display = key === name ? 'block' : 'none';
+                    buttons[key].classList.toggle('active', key === name);
+                });
+                if (name === 'market') {
+                    if (!marketStarted) { marketStarted = true; startMarket(); }
+                    else if (leafletMap) leafletMap.invalidateSize();   // map was hidden while on the other tab
+                }
+                history.replaceState(null, '', name === 'market' ? '#market' : window.location.pathname);
+            };
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', () => showCareerTab(btn.dataset.tab)));
+            // Deep link (/career#market). Wait until the whole page script has run, because the market
+            // code below declares its state with let/const after this block.
+            document.addEventListener('DOMContentLoaded', () => {
+                if (window.location.hash === '#market') showCareerTab('market');
+            });
+        })();
+
+        // ---- Hiring vs Layoffs ----
+        const LEAFLET_CSS = { href: 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css', integrity: 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=' };
+        const LEAFLET_JS = { src: 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', integrity: 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' };
+        const CHART_JS = { src: 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js', integrity: 'sha256-0q+JdOlScWOHcunpUk21uab1jW7C1deBQARHtKMcaB4=' };
+        const KIND_COLORS = { growth: '#10b981', cuts: '#ef4444', mixed: '#f59e0b' };
+        const TREND_WEEKS = { 7: 4, 30: 8, 90: 13 };
+        const marketState = { country: 'India', days: 30, group: 'all' };
+        let marketLoadCounter = 0;
+        let leafletReady = null;
+        let chartReady = null;
+        let marketMapLayer = null;
+        let leafletMap = null;   // not window.<id>: element ids are exposed as window properties
+        let trendChart = null;
+
+        function loadScriptOnce(spec) {
+            return new Promise((resolve, reject) => {
+                const tag = document.createElement('script');
+                tag.src = spec.src;
+                tag.integrity = spec.integrity;
+                tag.crossOrigin = 'anonymous';
+                tag.onload = () => resolve();
+                tag.onerror = () => reject(new Error('failed to load ' + spec.src));
+                document.head.appendChild(tag);
+            });
+        }
+        function loadLeaflet() {
+            if (!leafletReady) {
+                const css = document.createElement('link');
+                css.rel = 'stylesheet';
+                css.href = LEAFLET_CSS.href;
+                css.integrity = LEAFLET_CSS.integrity;
+                css.crossOrigin = 'anonymous';
+                document.head.appendChild(css);
+                leafletReady = loadScriptOnce(LEAFLET_JS).then(() => {
+                    if (!window.L) throw new Error('Leaflet missing');
+                });
+            }
+            return leafletReady;
+        }
+        function loadChart() {
+            if (!chartReady) {
+                chartReady = loadScriptOnce(CHART_JS).then(() => {
+                    if (!window.Chart) throw new Error('Chart.js missing');
+                });
+            }
+            return chartReady;
+        }
+        function fallback(box, text) {
+            clear(box);
+            box.appendChild(el('div', 'lib-fallback', text));
+        }
+        function statLine(label, stat) {
+            // "Reported hires: 500 (from 1 of 3 signals)" or an explicit "none stated"
+            if (!stat || stat.total === null || stat.total === undefined) {
+                return label + ': no number stated';
+            }
+            return label + ': ' + stat.total + ' (from ' + stat.signals_with_count + ' of ' + stat.signals + ' signals)';
+        }
+        function sourceLinks(articles) {
+            const wrap = el('div', 'signal-sources');
+            (articles || []).forEach((article, index) => {
+                if (index > 0) wrap.appendChild(document.createTextNode(' · '));
+                const href = safeUrl(article.link);
+                const label = (article.source ? article.source + ': ' : '') + (article.title || 'Source article');
+                if (href) {
+                    const a = el('a', null, label);
+                    a.href = href;
+                    a.target = '_blank';
+                    a.rel = 'noopener noreferrer';
+                    wrap.appendChild(a);
+                } else {
+                    wrap.appendChild(el('span', null, label));
+                }
+            });
+            return wrap;
+        }
+
+        // Map
+        function popupFor(point) {
+            const box = el('div');
+            box.appendChild(el('div', 'popup-title', point.city || point.country || 'Unknown place'));
+            if (point.precision === 'country') box.appendChild(el('div', 'popup-line', 'Country-level position (no city stated)'));
+            box.appendChild(el('div', 'popup-line', plural(point.signal_count, 'signal') + ': ' + point.growth_count + ' hiring/expansion, ' + point.cuts_count + ' layoff/freeze'));
+            if (point.growth_count) box.appendChild(el('div', 'popup-line', statLine('Reported hires', point.reported_hires)));
+            if (point.reported_layoffs && point.reported_layoffs.signals) box.appendChild(el('div', 'popup-line', statLine('Reported layoffs', point.reported_layoffs)));
+            const more = point.company_count > (point.companies || []).length ? ' and ' + (point.company_count - point.companies.length) + ' more' : '';
+            box.appendChild(el('div', 'popup-line', 'Companies: ' + (point.companies || []).join(', ') + more));
+            box.appendChild(sourceLinks(point.articles));
+            return box;
+        }
+        async function renderMap(data) {
+            const mapBox = document.getElementById('marketMap');
+            try {
+                await loadLeaflet();
+            } catch (err) {
+                console.error('Map library unavailable:', err);
+                fallback(mapBox, 'The map could not be loaded (its library did not load). The company board and trend below still work.');
+                return;
+            }
+            try {
+                if (!leafletMap) {
+                    clear(mapBox);
+                    leafletMap = L.map(mapBox, { worldCopyJump: true });
+                    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 18,
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    }).addTo(leafletMap);
+                    marketMapLayer = L.layerGroup().addTo(leafletMap);
+                }
+                marketMapLayer.clearLayers();
+                (data.points || []).forEach(point => {
+                    const radius = Math.min(32, 8 + Math.sqrt(point.signal_count) * 6);
+                    const color = KIND_COLORS[point.kind] || KIND_COLORS.mixed;
+                    L.circleMarker([point.lat, point.lng], {
+                        radius: radius, color: color, weight: 2, fillColor: color, fillOpacity: 0.45
+                    }).bindPopup(popupFor(point)).addTo(marketMapLayer);   // popup is a DOM node, never an HTML string
+                });
+                if (marketState.country === 'India') leafletMap.setView([22.5, 79], 5);
+                else leafletMap.setView([20, 10], 2);
+                leafletMap.invalidateSize();
+            } catch (err) {
+                console.error('Map failed to draw:', err);
+                fallback(mapBox, 'The map loaded but could not be drawn. The company board and trend below still work.');
+            }
+        }
+        function renderLocationNote(data) {
+            const note = document.getElementById('locationNote');
+            clear(note);
+            const stated = el('div');
+            const n = data.location_not_stated || 0;
+            stated.appendChild(el('strong', null, plural(n, 'signal')));
+            stated.appendChild(document.createTextNode(n === 1 ? ' has no stated location and is not plotted.' : ' have no stated location and are not plotted.'));
+            note.appendChild(stated);
+            if (data.unmapped_locations && data.unmapped_locations.length) {
+                const list = el('div');
+                list.appendChild(el('strong', null, 'Not plotted (place not in our coordinate table): '));
+                list.appendChild(document.createTextNode(data.unmapped_locations.map(u =>
+                    [u.city, u.country].filter(Boolean).join(', ') + ' (' + plural(u.signal_count, 'signal') + ')'
+                ).join('; ')));
+                note.appendChild(list);
+            }
+            if (data.country_inferred_from_city) {
+                note.appendChild(el('div', null, plural(data.country_inferred_from_city, 'signal') + ' had no stated country; it was taken from the city.'));
+            }
+            if (data.excluded_by_country_filter) {
+                note.appendChild(el('div', null, plural(data.excluded_by_country_filter, 'signal') + ' in other places are hidden by the country filter.'));
+            }
+        }
+
+        // Company board
+        function boardCard(company, kind) {
+            const card = el('div', 'board-card ' + kind);
+            const top = el('div', 'signal-top');
+            top.appendChild(el('div', 'signal-company', company.company));
+            top.appendChild(el('span', 'net-badge net-' + company.net_signal, company.net_signal));
+            card.appendChild(top);
+            card.appendChild(el('div', 'signal-meta',
+                plural(company.growth, 'hiring/expansion signal') + ' · ' + plural(company.cuts, 'layoff/freeze signal')));
+            if (kind === 'growth') card.appendChild(el('div', 'demand-meta', statLine('Reported hires', company.reported_hires)));
+            else card.appendChild(el('div', 'demand-meta', statLine('Reported layoffs', company.reported_layoffs)));
+            card.appendChild(sourceLinks(company.articles));
+            return card;
+        }
+        function boardColumn(title, companies, kind, hiddenByFilter) {
+            const col = el('div');
+            col.appendChild(el('div', 'board-heading', title));
+            if (hiddenByFilter) {
+                col.appendChild(el('div', 'demand-meta', 'Hidden by the "Show" filter.'));
+                return col;
+            }
+            if (!companies.length) {
+                col.appendChild(el('div', 'demand-meta', 'No companies in this period.'));
+                return col;
+            }
+            const list = el('div', 'board-list');
+            companies.forEach(c => list.appendChild(boardCard(c, kind)));
+            col.appendChild(list);
+            return col;
+        }
+        function renderBoard(data) {
+            const box = document.getElementById('boardContent');
+            clear(box);
+            if (!data.companies.length) {
+                box.appendChild(el('div', 'empty-state', 'No hiring or layoff signals were found for these filters.'));
+                return;
+            }
+            const growth = data.companies.filter(c => c.growth > 0).sort((a, b) => b.growth - a.growth || a.company.localeCompare(b.company));
+            const cuts = data.companies.filter(c => c.cuts > 0).sort((a, b) => b.cuts - a.cuts || a.company.localeCompare(b.company));
+            const columns = el('div', 'board-columns');
+            columns.appendChild(boardColumn('Hiring / expanding', growth, 'growth', marketState.group === 'cuts'));
+            columns.appendChild(boardColumn('Layoffs / freezes', cuts, 'cuts', marketState.group === 'growth'));
+            box.appendChild(columns);
+        }
+
+        // Trend chart
+        function renderTrend(data) {
+            const box = document.getElementById('trendBox');
+            return loadChart().then(() => {
+                if (!trendChart) {
+                    clear(box);
+                    const canvas = document.createElement('canvas');
+                    box.appendChild(canvas);
+                    trendChart = new Chart(canvas, {
+                        type: 'bar',
+                        data: { labels: [], datasets: [
+                            { label: 'Hiring / expansion', data: [], backgroundColor: 'rgba(16,185,129,0.65)', borderColor: '#10b981', borderWidth: 1 },
+                            { label: 'Layoffs / freezes', data: [], backgroundColor: 'rgba(239,68,68,0.65)', borderColor: '#ef4444', borderWidth: 1 }
+                        ] },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { labels: { color: '#d4d4d8' } } },
+                            scales: {
+                                x: { ticks: { color: '#a1a1aa' }, grid: { color: 'rgba(255,255,255,0.06)' } },
+                                y: { beginAtZero: true, ticks: { color: '#a1a1aa', precision: 0 }, grid: { color: 'rgba(255,255,255,0.06)' } }
+                            }
+                        }
+                    });
+                }
+                trendChart.data.labels = data.series.map(p => p.week);
+                trendChart.data.datasets[0].data = data.series.map(p => p.growth);
+                trendChart.data.datasets[1].data = data.series.map(p => p.cuts);
+                trendChart.data.datasets[0].hidden = marketState.group === 'cuts';
+                trendChart.data.datasets[1].hidden = marketState.group === 'growth';
+                trendChart.update();
+            }).catch(err => {
+                console.error('Chart unavailable:', err);
+                trendChart = null;
+                fallback(box, 'The chart could not be loaded (its library did not load). The map and company board still work.');
+            });
+        }
+
+        // Loading
+        function marketQuery(extra) {
+            const params = new URLSearchParams(extra);
+            if (marketState.country) params.set('country', marketState.country);
+            return params.toString();
+        }
+        async function fetchJson(url) {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.json();
+        }
+        async function loadMarket() {
+            const thisLoad = ++marketLoadCounter;   // ignore responses from a superseded filter change
+            const weeks = TREND_WEEKS[marketState.days] || 8;
+            document.getElementById('trendSub').textContent =
+                'Hiring and expansion signals versus layoff and freeze signals, per week, for the last ' + weeks + ' weeks.';
+            let heat, board, trend;
+            try {
+                [heat, board, trend] = await Promise.all([
+                    fetchJson('/api/career/heatmap?' + marketQuery({ days: marketState.days, group: marketState.group })),
+                    fetchJson('/api/career/company-board?' + marketQuery({ days: marketState.days, limit: 50 })),
+                    fetchJson('/api/career/trend?' + marketQuery({ weeks: weeks }))
+                ]);
+            } catch (err) {
+                console.error('Failed to load market data:', err);
+                if (thisLoad !== marketLoadCounter) return;
+                document.getElementById('marketBasis').textContent = '';
+                message(document.getElementById('boardContent'), 'Could not load hiring and layoff data. Please try again later.', 'error-state');
+                return;
+            }
+            if (thisLoad !== marketLoadCounter) return;
+            document.getElementById('marketBasis').textContent = heat.basis || '';
+            if (heat.note) document.getElementById('marketNote').textContent = heat.note;
+            document.getElementById('boardBasis').textContent = board.basis + ' ' + (board.headcount_note || '');
+            document.getElementById('trendBasis').textContent = (trend.basis || '') + ' ' + (trend.week_basis || '');
+            renderLocationNote(heat);
+            renderBoard(board);
+            await Promise.all([renderMap(heat), renderTrend(trend)]);
+        }
+        function startMarket() {
+            document.getElementById('marketCountry').addEventListener('change', (e) => {
+                marketState.country = e.target.value;
+                loadMarket();
+            });
+            document.getElementById('marketDays').addEventListener('click', (e) => {
+                const btn = e.target.closest('.days-btn');
+                if (!btn) return;
+                marketState.days = Number(btn.dataset.days);
+                document.querySelectorAll('#marketDays .days-btn').forEach(b => b.classList.toggle('active', b === btn));
+                loadMarket();
+            });
+            document.getElementById('marketGroup').addEventListener('click', (e) => {
+                const btn = e.target.closest('.days-btn');
+                if (!btn) return;
+                marketState.group = btn.dataset.group;
+                document.querySelectorAll('#marketGroup .days-btn').forEach(b => b.classList.toggle('active', b === btn));
+                loadMarket();
+            });
+            loadMarket();
+        }
+    </script>
+</body>
+</html>
