@@ -1,0 +1,9 @@
+{
+  "title": "What Picasso taught me about building AI Agents",
+  "link": "https://claramap.com/blog/what-picasso-taught-me-about-building-ai-agents/",
+  "summary": "<p>Article URL: <a href=\"https://claramap.com/blog/what-picasso-taught-me-about-building-ai-agents/\">https://claramap.com/blog/what-picasso-taught-me-about-building-ai-agents/</a></p>\n<p>Comments URL: <a href=\"https://news.ycombinator.com/item?id=50508076\">https://news.ycombinator.com/item?id=50508076</a></p>\n<p>Points: 5</p>\n<p># Comments: 1</p>",
+  "published": "Sun, 15 Nov 2026 16:16:26 +0000",
+  "image_url": "https://claramap.com/assets/blog/picasso-the-bull.png",
+  "llm_summary": "The post draws a parallel between Picasso’s habit of constantly sketching “studies” before committing to a finished painting and the modern practice of iteratively prototyping AI agents. By building lightweight “toy” versions—small prompts, simple tool‑use loops, or sandboxed environments—developers can discover flaws, explore behavior, and refine architecture before scaling up to production‑grade agents. The author",
+  "source": "Hacker News"
+}
