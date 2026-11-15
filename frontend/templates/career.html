@@ -294,6 +294,28 @@
         .popup-title { font-weight: 700; margin-bottom: 4px; }
         .popup-line { font-size: 12.5px; margin: 2px 0; }
         @media (max-width: 800px) { .board-columns { grid-template-columns: 1fr; } }
+        /* This Week tab */
+        .brief-header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14px; align-items: flex-start; margin-bottom: 18px; }
+        .brief-meta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; font-size: 13px; color: var(--text-muted); }
+        .brief-badge { font-family: var(--font-mono); font-size: 11.5px; padding: 3px 9px; border-radius: 6px; }
+        .brief-badge.ai { background: rgba(168, 85, 247, 0.18); border: 1px solid rgba(168, 85, 247, 0.45); color: #e9d5ff; }
+        .brief-badge.template { background: rgba(6, 182, 212, 0.13); border: 1px solid rgba(6, 182, 212, 0.4); color: #a5f3fc; }
+        .brief-headline { font-family: var(--font-heading); font-size: 26px; font-weight: 800; color: #ffffff; line-height: 1.25; margin-bottom: 10px; }
+        .brief-summary { color: #d4d4d8; font-size: 15px; line-height: 1.65; max-width: 820px; }
+        .btn-regen:disabled { opacity: 0.55; cursor: not-allowed; }
+        .skill-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+        .skill-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.09); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+        .skill-card-name { font-weight: 800; font-size: 18px; color: #ffffff; }
+        .skill-why { font-size: 13.5px; color: #d4d4d8; line-height: 1.55; }
+        .link-list { display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
+        .link-list a { color: var(--secondary); text-decoration: none; }
+        .link-list a:hover { text-decoration: underline; }
+        .link-list-title { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 2px; }
+        .watch-list { margin: 0; padding-left: 20px; color: #d4d4d8; font-size: 14.5px; line-height: 1.8; }
+        .history-row { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.06); font-size: 13.5px; color: #d4d4d8; }
+        .history-row:last-child { border-bottom: none; }
+        .history-week { font-family: var(--font-mono); font-size: 12.5px; color: var(--text-muted); }
+        .week-error { color: #fecaca; font-size: 13.5px; margin-top: 8px; }
     </style>
 </head>
 <body>
@@ -325,6 +347,9 @@
             </button>
             <button type="button" class="tab-btn" id="tabBtnMarket" data-tab="market" role="tab">
                 <i class="fa-solid fa-chart-line"></i> Hiring vs Layoffs
+            </button>
+            <button type="button" class="tab-btn" id="tabBtnWeek" data-tab="week" role="tab">
+                <i class="fa-solid fa-calendar-week"></i> This Week
             </button>
         </div>
 
@@ -425,6 +450,60 @@
                 <p class="section-sub" id="trendSub">Hiring and expansion signals versus layoff and freeze signals, per week.</p>
                 <div class="chart-box" id="trendBox"><div class="lib-fallback" style="color: var(--text-muted);">Loading chart…</div></div>
                 <div class="basis-line" id="trendBasis" style="margin-top: 12px;"></div>
+            </section>
+        </div>
+
+        <!-- This Week -->
+        <div id="panelWeek" style="display: none;">
+            <div class="brief-header">
+                <div>
+                    <h1 class="career-title"><i class="fa-solid fa-calendar-week" style="color: var(--secondary);"></i> This Week</h1>
+                    <p class="career-subtitle">A short brief written from this week's hiring and layoff news mentions, matched to your Career Profile.</p>
+                    <div class="brief-meta" id="weekMeta"></div>
+                </div>
+                <button type="button" class="btn btn-secondary btn-regen" id="weekRegen" style="display: none;">
+                    <i class="fa-solid fa-rotate"></i> Regenerate
+                </button>
+            </div>
+            <div class="week-error" id="weekRegenError" role="alert"></div>
+
+            <div id="weekState"></div>
+
+            <div id="weekBody" style="display: none;">
+                <section class="career-section">
+                    <h2 class="brief-headline" id="weekHeadline"></h2>
+                    <p class="brief-summary" id="weekSummary"></p>
+                    <div class="basis-line" id="weekBasis" style="margin-top: 12px;"></div>
+                </section>
+
+                <div id="weekProfileCta"></div>
+
+                <section class="career-section" id="weekFocusSection">
+                    <h2 class="section-title"><i class="fa-solid fa-bullseye" style="color: #f97316;"></i> Skills to focus on</h2>
+                    <p class="section-sub">Skills named in this period's hiring and expansion news mentions.</p>
+                    <div id="weekFocus"></div>
+                </section>
+
+                <section class="career-section" id="weekWatchSection">
+                    <h2 class="section-title"><i class="fa-solid fa-eye" style="color: var(--primary);"></i> Watch list</h2>
+                    <div id="weekWatch"></div>
+                </section>
+
+                <section class="career-section">
+                    <h2 class="section-title"><i class="fa-solid fa-building" style="color: var(--secondary);"></i> Market snapshot</h2>
+                    <p class="section-sub">Signal counts only. Headcount appears only when an article stated a number, and is partial.</p>
+                    <div id="weekMarket"></div>
+                </section>
+
+                <div class="inferred-note">
+                    <i class="fa-solid fa-circle-info" style="margin-top: 2px;"></i>
+                    <div><strong>Inferred from news mentions.</strong> <span id="weekCaution"></span></div>
+                </div>
+            </div>
+
+            <section class="career-section" id="weekHistorySection" style="display: none;">
+                <h2 class="section-title"><i class="fa-solid fa-clock-rotate-left" style="color: var(--text-muted);"></i> Past briefs</h2>
+                <div id="weekHistory"></div>
             </section>
         </div>
     </main>
@@ -659,9 +738,10 @@
     <script>
         // ---- Tabs ----
         (function () {
-            const panels = { skills: document.getElementById('panelSkills'), market: document.getElementById('panelMarket') };
-            const buttons = { skills: document.getElementById('tabBtnSkills'), market: document.getElementById('tabBtnMarket') };
+            const panels = { skills: document.getElementById('panelSkills'), market: document.getElementById('panelMarket'), week: document.getElementById('panelWeek') };
+            const buttons = { skills: document.getElementById('tabBtnSkills'), market: document.getElementById('tabBtnMarket'), week: document.getElementById('tabBtnWeek') };
             let marketStarted = false;
+            let weekStarted = false;
             window.showCareerTab = function (name) {
                 Object.keys(panels).forEach(key => {
                     panels[key].style.display = key === name ? 'block' : 'none';
@@ -671,13 +751,15 @@
                     if (!marketStarted) { marketStarted = true; startMarket(); }
                     else if (leafletMap) leafletMap.invalidateSize();   // map was hidden while on the other tab
                 }
-                history.replaceState(null, '', name === 'market' ? '#market' : window.location.pathname);
+                if (name === 'week' && !weekStarted) { weekStarted = true; startWeek(); }
+                history.replaceState(null, '', name === 'skills' ? window.location.pathname : '#' + name);
             };
             document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', () => showCareerTab(btn.dataset.tab)));
             // Deep link (/career#market). Wait until the whole page script has run, because the market
             // code below declares its state with let/const after this block.
             document.addEventListener('DOMContentLoaded', () => {
                 if (window.location.hash === '#market') showCareerTab('market');
+                else if (window.location.hash === '#week') showCareerTab('week');
             });
         })();
 
@@ -972,6 +1054,219 @@
                 loadMarket();
             });
             loadMarket();
+        }
+
+        // ---- This Week ----
+        let weekBusy = false;
+
+        function weekCta(box, text, buttonLabel, href) {
+            clear(box);
+            const wrap = el('div', 'cta-box');
+            wrap.appendChild(el('i', 'fa-solid fa-user-graduate cta-icon'));
+            wrap.appendChild(el('div', null, text));
+            const link = el('a', 'btn btn-primary');
+            link.href = href;
+            link.appendChild(document.createTextNode(buttonLabel));
+            wrap.appendChild(link);
+            box.appendChild(wrap);
+        }
+        function linkList(title, items, hrefKey) {
+            // items: [{title, <hrefKey>}] ; only http(s) links become clickable
+            const wrap = el('div', 'link-list');
+            wrap.appendChild(el('div', 'link-list-title', title));
+            items.forEach(item => {
+                const href = safeUrl(item[hrefKey]);
+                const label = item.title || 'Link';
+                if (href) {
+                    const a = el('a', null, label);
+                    a.href = href;
+                    a.target = '_blank';
+                    a.rel = 'noopener noreferrer';
+                    wrap.appendChild(a);
+                } else {
+                    wrap.appendChild(el('span', null, label));
+                }
+            });
+            return wrap;
+        }
+        function focusCard(item) {
+            const card = el('div', 'skill-card');
+            card.appendChild(el('div', 'skill-card-name', item.skill));
+            if (item.demand_signals !== null && item.demand_signals !== undefined) {
+                const counts = [plural(item.demand_signals, 'signal')];
+                if (item.company_count !== null && item.company_count !== undefined) {
+                    counts.push(item.company_count === 1 ? '1 company' : item.company_count + ' companies');
+                }
+                card.appendChild(el('div', 'demand-meta', counts.join(' \u00b7 ')));
+            }
+            card.appendChild(el('div', 'skill-why', item.why));
+            if (item.companies && item.companies.length) {
+                const row = el('div', 'chip-row');
+                item.companies.forEach(c => row.appendChild(chip(c, 'chip-company')));
+                card.appendChild(row);
+            }
+            if (item.learning_links && item.learning_links.length) card.appendChild(linkList('Learn', item.learning_links, 'url'));
+            if (item.sources && item.sources.length) card.appendChild(linkList('Mentioned in', item.sources, 'link'));
+            return card;
+        }
+        function statText(label, stat) {
+            return label + ': ' + stat.total + ' (from ' + stat.signals_with_count + ' of ' + stat.signals + ' signals)';
+        }
+        function marketColumn(title, companies, kind) {
+            const col = el('div');
+            col.appendChild(el('div', 'board-heading', title));
+            if (!companies.length) {
+                col.appendChild(el('div', 'demand-meta', 'None in this period.'));
+                return col;
+            }
+            const list = el('div', 'board-list');
+            companies.forEach(c => {
+                const card = el('div', 'board-card ' + kind);
+                card.appendChild(el('div', 'signal-company', c.company));
+                card.appendChild(el('div', 'signal-meta',
+                    plural(c.growth_signals, 'hiring/expansion signal') + ' \u00b7 ' + plural(c.cut_signals, 'layoff/freeze signal')));
+                const stat = kind === 'growth' ? c.reported_hires : c.reported_layoffs;
+                if (stat) card.appendChild(el('div', 'demand-meta', statText(kind === 'growth' ? 'Reported hires' : 'Reported layoffs', stat)));
+                if (c.sources && c.sources.length) card.appendChild(linkList('Source', c.sources, 'link'));
+                list.appendChild(card);
+            });
+            col.appendChild(list);
+            return col;
+        }
+        function renderBrief(data) {
+            const content = data.content || {};
+            document.getElementById('weekState').textContent = '';
+            document.getElementById('weekBody').style.display = 'block';
+            document.getElementById('weekRegen').style.display = 'inline-flex';
+
+            const meta = document.getElementById('weekMeta');
+            clear(meta);
+            meta.appendChild(el('span', null, 'Week of ' + data.week_start));
+            if (data.generated_at) meta.appendChild(el('span', null, 'Generated ' + data.generated_at.slice(0, 10)));
+            meta.appendChild(el('span', 'brief-badge ' + (data.source === 'llm' ? 'ai' : 'template'),
+                data.source === 'llm' ? 'AI-written' : 'Auto template'));
+
+            document.getElementById('weekHeadline').textContent = content.headline || '';
+            document.getElementById('weekSummary').textContent = content.summary || '';
+            document.getElementById('weekBasis').textContent = data.basis || '';
+            document.getElementById('weekCaution').textContent = content.caution || '';
+
+            const cta = document.getElementById('weekProfileCta');
+            clear(cta);
+            if (content.empty_profile) {
+                const box = el('div', 'career-section');
+                weekCta(box, 'You have not filled in your Career Profile yet, so this brief only shows the market. Add your skills and target companies to get a personal skill gap.', 'Open Career Profile', '/dashboard');
+                cta.appendChild(box);
+            }
+
+            const focus = document.getElementById('weekFocus');
+            clear(focus);
+            if (content.focus_skills && content.focus_skills.length) {
+                const grid = el('div', 'skill-card-grid');
+                content.focus_skills.forEach(item => grid.appendChild(focusCard(item)));
+                focus.appendChild(grid);
+            } else {
+                focus.appendChild(el('div', 'empty-state', content.empty_profile
+                    ? 'No skills were named in this period\u2019s hiring and expansion news mentions.'
+                    : 'No missing skills were found in this period\u2019s news mentions.'));
+            }
+            if (content.matched_skills && content.matched_skills.length) {
+                const matched = el('div', null);
+                matched.style.marginTop = '16px';
+                matched.appendChild(el('div', 'gap-heading', 'Your skills that appear in the news mentions'));
+                matched.appendChild(skillChips(content.matched_skills.map(m => ({ skill: m.skill, signal_count: m.demand_signals })), 'chip-matched'));
+                focus.appendChild(matched);
+            }
+
+            const watch = document.getElementById('weekWatch');
+            clear(watch);
+            if (content.watch_list && content.watch_list.length) {
+                const ul = el('ul', 'watch-list');
+                content.watch_list.forEach(item => ul.appendChild(el('li', null, item)));
+                watch.appendChild(ul);
+            } else {
+                watch.appendChild(el('div', 'demand-meta', 'Nothing to watch in this period.'));
+            }
+
+            const marketBox = document.getElementById('weekMarket');
+            clear(marketBox);
+            const market = content.market || { growing: [], cutting: [] };
+            const columns = el('div', 'board-columns');
+            columns.appendChild(marketColumn('Growing', market.growing || [], 'growth'));
+            columns.appendChild(marketColumn('Cutting', market.cutting || [], 'cuts'));
+            marketBox.appendChild(columns);
+        }
+        function renderHistory(list) {
+            const section = document.getElementById('weekHistorySection');
+            const box = document.getElementById('weekHistory');
+            clear(box);
+            if (!list || !list.length) { section.style.display = 'none'; return; }
+            section.style.display = 'block';
+            list.forEach(item => {
+                const row = el('div', 'history-row');
+                row.appendChild(el('span', 'history-week', item.week_start));
+                row.appendChild(el('span', null, item.headline || '(no headline)'));
+                row.appendChild(el('span', 'brief-badge ' + (item.source === 'llm' ? 'ai' : 'template'), item.source === 'llm' ? 'AI-written' : 'Auto template'));
+                box.appendChild(row);
+            });
+        }
+        function weekSignedOut(text) {
+            document.getElementById('weekBody').style.display = 'none';
+            document.getElementById('weekHistorySection').style.display = 'none';
+            document.getElementById('weekRegen').style.display = 'none';
+            document.getElementById('weekMeta').textContent = '';
+            weekCta(document.getElementById('weekState'), text, 'Log in', '/');
+        }
+        async function loadHistory() {
+            try {
+                const res = await fetch('/api/career/brief/history?limit=8', { headers: { 'Authorization': 'Bearer ' + token } });
+                if (res.ok) renderHistory((await res.json()).briefs);
+            } catch (err) {
+                console.error('Failed to load brief history:', err);
+            }
+        }
+        async function loadWeek(url, method) {
+            if (weekBusy) return;
+            const stateBox = document.getElementById('weekState');
+            const errorBox = document.getElementById('weekRegenError');
+            const regen = document.getElementById('weekRegen');
+            errorBox.textContent = '';
+            weekBusy = true;
+            regen.disabled = true;
+            if (method !== 'POST') message(stateBox, 'Loading your brief\u2026');
+            try {
+                const res = await fetch(url, { method: method, headers: { 'Authorization': 'Bearer ' + token } });
+                if (res.status === 401) {
+                    localStorage.removeItem('authToken');
+                    weekSignedOut('Your session has expired. Log in again to see your weekly brief.');
+                    return;
+                }
+                if (!res.ok) {
+                    let detail = '';
+                    try { detail = (await res.json()).detail; } catch (e) { /* not JSON */ }
+                    const text = typeof detail === 'string' && detail ? detail : 'Could not load your brief (HTTP ' + res.status + ').';
+                    if (method === 'POST') errorBox.textContent = text;           // keep the current brief visible
+                    else message(stateBox, text, 'error-state');
+                    return;
+                }
+                renderBrief(await res.json());
+                loadHistory();
+            } catch (err) {
+                console.error('Failed to load weekly brief:', err);
+                if (method === 'POST') errorBox.textContent = 'Network error. Please try again.';
+                else message(stateBox, 'Could not load your brief. Please try again later.', 'error-state');
+            } finally {
+                weekBusy = false;
+                regen.disabled = false;
+            }
+        }
+        function startWeek() {
+            document.getElementById('weekRegen').addEventListener('click', () => loadWeek('/api/career/brief/regenerate', 'POST'));
+            if (!token) {
+                weekSignedOut('Log in to get your personal weekly career brief.');
+                return;
+            }
+            loadWeek('/api/career/brief', 'GET');
         }
     </script>
 </body>

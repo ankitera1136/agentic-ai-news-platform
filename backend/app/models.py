@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Integer, String, DateTime, Text, ForeignKey, Table, JSON, LargeBinary, Float
+from sqlalchemy import Boolean, Column, Integer, String, DateTime, Text, ForeignKey, Table, JSON, LargeBinary, Float, Date, UniqueConstraint
 try:
     from sqlalchemy.orm import declarative_base  # SQLAlchemy 2.x
 except ImportError:
@@ -43,6 +43,7 @@ class User(Base):
     profile = relationship(
         "StudentProfile", uselist=False, cascade="all, delete-orphan", back_populates="user"
     )
+    briefs = relationship("WeeklyBrief", cascade="all, delete-orphan", back_populates="user")
 
 class Category(Base):
     __tablename__ = "categories"
@@ -230,3 +231,21 @@ class StudentProfile(Base):
     )
 
     user = relationship("User", back_populates="profile")
+
+
+class WeeklyBrief(Base):
+    """A user's CareerRadar brief for one ISO week. `facts` is the exact structured input the
+    writer saw; `content` is the final brief. Never stores article bodies."""
+    __tablename__ = "weekly_briefs"
+    __table_args__ = (UniqueConstraint("user_id", "week_start", name="uq_weekly_briefs_user_week"),)
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    week_start = Column(Date, nullable=False)  # Monday of the ISO week
+    facts = Column(JSON, nullable=False)
+    content = Column(JSON, nullable=False)
+    source = Column(String, nullable=False)  # llm | template
+    model_used = Column(String, nullable=True)
+    generated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+    user = relationship("User", back_populates="briefs")

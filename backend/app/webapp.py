@@ -62,6 +62,10 @@ app.include_router(profile_router)
 from backend.app.routers.career import router as career_router
 app.include_router(career_router)
 
+# CareerRadar weekly brief routes (/api/career/brief*)
+from backend.app.routers.brief import router as brief_router
+app.include_router(brief_router)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

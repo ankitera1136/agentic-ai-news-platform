@@ -96,6 +96,13 @@ def init_database():
     except Exception as e:
         print(f"[INIT DB WARNING] Student profile migration note: {e}")
 
+    # CareerRadar weekly briefs table (CareerRadar step 5)
+    try:
+        from backend.services.brief.migrate import upgrade as brief_upgrade
+        brief_upgrade()
+    except Exception as e:
+        print(f"[INIT DB WARNING] Weekly brief migration note: {e}")
+
     # Auto-migration: Ensure columns exist
     try:
         from sqlalchemy import text
