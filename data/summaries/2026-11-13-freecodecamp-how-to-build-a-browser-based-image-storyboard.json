@@ -1,0 +1,9 @@
+{
+  "title": "How to Build a Browser-Based Image Storyboard to PDF Tool Using JavaScript",
+  "link": "https://www.freecodecamp.org/news/build-image-storyboard-to-pdf-tool-javascript/",
+  "summary": "Before anyone films a video, shoots an ad or draws the final pages of a comic, someone usually sketches the plan as a storyboard: one picture per shot, in order, with a short note about what happens a",
+  "published": "Fri, 13 Nov 2026 10:44:43 +0000",
+  "image_url": "https://cdn.hashnode.com/uploads/covers/5fc16e412cae9c5b190b6cdd/eb2e1525-11db-47ef-a27c-b0672184efe8.png",
+  "llm_summary": "A browser‑based image storyboard‑to‑PDF tool lets creators arrange a sequence of pictures—each representing a shot or panel—directly in the web page, add brief notes, and then export the whole storyboard as a single PDF file. Using JavaScript, the app handles image uploads, drag‑and‑drop ordering, text annotations, and PDF generation entirely on the client side, so no server processing is required",
+  "source": "freeCodeCamp"
+}

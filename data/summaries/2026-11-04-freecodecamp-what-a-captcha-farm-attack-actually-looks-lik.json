@@ -1,0 +1,9 @@
+{
+  "title": "What a CAPTCHA Farm Attack Actually Looks Like",
+  "link": "https://www.freecodecamp.org/news/captcha-farm-attack/",
+  "summary": "CAPTCHAs are something most of us have come across while browsing the internet. Sometimes we're asked to identify traffic lights in pictures, solve a small puzzle, or simply tick a box to confirm we'r",
+  "published": "Wed, 04 Nov 2026 21:32:45 +0000",
+  "image_url": "https://cdn.hashnode.com/uploads/covers/5e1e335a7a1d3fcc59028c64/392975d9-8fb2-4311-bbd9-8ec42af322ef.png",
+  "llm_summary": "CAPTCHA farms are low‑cost operations where dozens—or even thousands—of workers manually solve the puzzles that websites use to block bots, then sell the answers to attackers who need to automate actions like creating fake accounts or scraping data. The article shows a typical farm’s setup—a wall of monitors displaying image‑recogn",
+  "source": "freeCodeCamp"
+}

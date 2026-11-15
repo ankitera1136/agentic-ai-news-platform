@@ -5,12 +5,8 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
-try:
-    from backend.app.models import User
-    from backend.app.database import get_db
-except ImportError:
-    from app.models import User
-    from app.database import get_db
+from backend.app.models import User
+from backend.app.database import get_db
 import os
 from dotenv import load_dotenv
 
@@ -101,16 +97,16 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
 
 async def get_current_admin_user(current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
     """Get current admin user, auto-elevates designated admin email, blocks non-admins with 403"""
-    admin_email_env = os.getenv("ADMIN_EMAIL", "18dkkaushik@gmail.com").lower().strip()
+    admin_email_env = os.getenv("ADMIN_EMAIL", "").lower().strip()
     user_email = current_user.email.lower().strip()
-    
-    if user_email == admin_email_env or user_email == "18dkkaushik@gmail.com":
+
+    if admin_email_env and user_email == admin_email_env:
         if not current_user.is_admin:
             current_user.is_admin = True
             db.commit()
             db.refresh(current_user)
         return current_user
-        
+
     if not current_user.is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -125,8 +121,8 @@ def create_user(db: Session, email: str, password: str, full_name: str = None):
     if get_user_by_email(db, normalized_email):
         raise HTTPException(status_code=400, detail="Email already registered")
     
-    admin_email_env = os.getenv("ADMIN_EMAIL", "18dkkaushik@gmail.com").lower().strip()
-    is_admin_user = (normalized_email == admin_email_env or normalized_email == "18dkkaushik@gmail.com")
+    admin_email_env = os.getenv("ADMIN_EMAIL", "").lower().strip()
+    is_admin_user = bool(admin_email_env and normalized_email == admin_email_env)
     
     hashed_password = get_password_hash(password)
     db_user = User(

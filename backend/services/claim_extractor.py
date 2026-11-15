@@ -13,20 +13,12 @@ import json
 import re
 from typing import List, Dict, Any, Optional
 
-try:
-    from backend.app.groq_client import call_groq
-    from backend.services.claim_normalizer import (
-        canonicalize_attribute,
-        parse_numeric_with_unit,
-        normalize_qualifier
-    )
-except ImportError:
-    from app.groq_client import call_groq
-    from services.claim_normalizer import (
-        canonicalize_attribute,
-        parse_numeric_with_unit,
-        normalize_qualifier
-    )
+from backend.app.groq_client import call_groq
+from backend.services.claim_normalizer import (
+    canonicalize_attribute,
+    parse_numeric_with_unit,
+    normalize_qualifier
+)
 
 CLAIM_EXTRACTION_PROMPT = """You are an investigative NLP claim extractor for computational journalism.
 Deconstruct the provided technology news article into atomic, verifiable factual claims.

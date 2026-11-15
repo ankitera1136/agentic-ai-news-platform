@@ -1,0 +1,9 @@
+{
+  "title": "Your .NET parallel loop can become serial in a one-CPU container",
+  "link": "https://stackoverflow.blog/2026/11/04/your-net-parallel-loop-can-become-serial-in-a-one-cpu-container/",
+  "summary": "CPU-based defaults can leave an I/O-heavy loop processing one record at a time. Raising the limit helps, but each downstream service still needs a concurrency budget it can handle.",
+  "published": "Wed, 04 Nov 2026 16:34:13 GMT",
+  "image_url": "",
+  "llm_summary": "We need to produce a 2-3 sentence summary for a general tech audience. The article title: \"Your .NET parallel loop can become serial in a one-CPU container\". Summary: CPU-based defaults can leave an I/O-heavy loop processing one record at a time. Raising the limit helps, but each downstream service still needs a concurrency budget it can handle.\n\nWe need to explain that .NET's default parallelism is based on CPU cores, so in a container with only one CPU, even I/O-bound loops become sequential. Adjusting the parallelism setting can improve throughput",
+  "source": "Stack Overflow Blog"
+}

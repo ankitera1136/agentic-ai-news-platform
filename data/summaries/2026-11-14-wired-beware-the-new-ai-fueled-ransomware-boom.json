@@ -1,0 +1,9 @@
+{
+  "title": "Beware the New AI-Fueled Ransomware Boom",
+  "link": "https://www.wired.com/story/beware-the-new-ai-fueled-ransomware-boom/",
+  "summary": "Fully automated ransomware hasn’t arrived—yet. But seemingly unsophisticated attackers are using AI tools to wreak havoc.",
+  "published": "Sat, 14 Nov 2026 13:00:00 +0000",
+  "image_url": "https://media.wired.com/photos/6af88e4339637940f3ecc20a/master/pass/image%20(76).png",
+  "llm_summary": "Even though fully automated ransomware—malware that can infect, encrypt, and demand payment without any human input—hasn't materialized yet, attackers are already exploiting AI tools to streamline their campaigns. By using inexpensive AI generators for things like phishing emails, code snippets, and social‑engineering scripts, relatively unsophisticated criminals can scale attacks faster and evade basic defenses, leading to a noticeable uptick in ransomware incidents. The takeaway for tech professionals is to",
+  "source": "Wired"
+}

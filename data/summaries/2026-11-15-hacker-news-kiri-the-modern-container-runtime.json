@@ -1,0 +1,9 @@
+{
+  "title": "Kiri – The Modern Container Runtime",
+  "link": "https://runkiri.com/",
+  "summary": "<p>Article URL: <a href=\"https://runkiri.com/\">https://runkiri.com/</a></p>\n<p>Comments URL: <a href=\"https://news.ycombinator.com/item?id=50504077\">https://news.ycombinator.com/item?id=50504077</a></p>\n<p>Points: 46</p>\n<p># Comments: 25</p>",
+  "published": "Sun, 15 Nov 2026 04:40:41 +0000",
+  "image_url": "https://runkiri.com/assets/og-image.png?v=2",
+  "llm_summary": "Kiri is a new, lightweight container runtime that aims to simplify and speed up the process of building, running, and managing containers, positioning itself as a modern alternative to Docker and other traditional runtimes. The project has already attracted attention on Hacker News, garnering 46 up‑votes and sparking a lively discussion with 25 comments about its design choices and potential impact on the",
+  "source": "Hacker News"
+}

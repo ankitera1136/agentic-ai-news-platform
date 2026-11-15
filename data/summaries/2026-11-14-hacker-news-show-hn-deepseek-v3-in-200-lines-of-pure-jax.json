@@ -1,0 +1,9 @@
+{
+  "title": "Show HN: DeepSeek V3 in ~200 lines of pure Jax",
+  "link": "https://github.com/Vaibhaav-Tiwari/deepseek-v3-jax",
+  "summary": "<p>Article URL: <a href=\"https://github.com/Vaibhaav-Tiwari/deepseek-v3-jax\">https://github.com/Vaibhaav-Tiwari/deepseek-v3-jax</a></p>\n<p>Comments URL: <a href=\"https://news.ycombinator.com/item?id=50497589\">https://news.ycombinator.com/item?id=50497589</a></p>\n<p>Points: 233</p>\n<p># Comments: 21</p>",
+  "published": "Sat, 14 Nov 2026 15:04:15 +0000",
+  "image_url": "https://opengraph.githubassets.com/b5418d2ffdcc131fc3ff1787dd6539284c8b2c26cf3dd2042fa559d4fb85b796/Vaibhaav-Tiwari/deepseek-v3-jax",
+  "llm_summary": "The repository shows how to recreate DeepSeek‑V3—a state‑of‑the‑art language model—using only about 200 lines of pure JAX code, demonstrating that even large‑scale transformer architectures can be built and run with a surprisingly small, readable codebase. The author provides a fully‑functional, open‑source implementation that mirrors the",
+  "source": "Hacker News"
+}

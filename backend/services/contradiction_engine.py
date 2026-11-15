@@ -11,12 +11,8 @@ Features:
 from typing import List, Dict, Any, Optional
 import math
 
-try:
-    from backend.services.claim_normalizer import compare_claim_pair
-    from backend.services.claim_extractor import claim_extractor
-except ImportError:
-    from services.claim_normalizer import compare_claim_pair
-    from services.claim_extractor import claim_extractor
+from backend.services.claim_normalizer import compare_claim_pair
+from backend.services.claim_extractor import claim_extractor
 
 # Origin weight mapping based on journalistic independence
 ORIGIN_WEIGHTS = {

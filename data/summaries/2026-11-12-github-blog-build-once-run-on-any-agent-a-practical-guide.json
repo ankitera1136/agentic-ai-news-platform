@@ -1,0 +1,9 @@
+{
+  "title": "Build once, run on any agent: A practical guide to agent skills",
+  "link": "https://github.blog/ai-and-ml/github-copilot/build-once-run-on-any-agent-a-practical-guide-to-agent-skills/",
+  "summary": "<p>Agent skills capture repeatable engineering work in files teams can review and reuse, while tools, project context, and permissions remain specific to the host that runs them.</p>\n<p>The post <a href=\"https://github.blog/ai-and-ml/github-copilot/build-once-run-on-any-agent-a-practical-guide-to-agent-skills/\">Build once, run on any agent: A practical guide to agent skills</a> appeared first on <a href=\"https://github.blog\">The GitHub Blog</a>.</p>",
+  "published": "Thu, 12 Nov 2026 22:54:52 +0000",
+  "image_url": "https://github.blog/wp-content/uploads/2026/11/5b5fed0ce69f241f469053d4f178383688adb2fb7ef44dff82c1a2dd6a626fa1-1920x1080-1.png",
+  "llm_summary": "Agent skills let developers package repeatable engineering tasks into version‑controlled files that can be reviewed, shared, and reused across projects. While the skill definitions are portable, the actual tools, project context, and permissions stay tied to the specific host agent that runs them, ensuring both flexibility and security. This approach lets teams “build once” and execute the same automation on any compatible agent without rewriting code.",
+  "source": "GitHub Blog"
+}

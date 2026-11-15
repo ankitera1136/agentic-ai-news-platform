@@ -180,10 +180,7 @@ class HistoryService:
         }
 
         try:
-            try:
-                from backend.app.groq_client import call_groq
-            except ImportError:
-                from app.groq_client import call_groq
+            from backend.app.groq_client import call_groq
 
             raw, model_used = call_groq(api_key, payload, timeout=12)
             if raw:

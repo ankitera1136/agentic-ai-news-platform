@@ -1,0 +1,9 @@
+{
+  "title": "Interview: MemStore’s Diwank Singh Tomer and Ishita Jindal on AI agent memory, contradictions and deletion",
+  "link": "https://www.medianama.com/2026/11/223-memstore-ai-agent-memory-privacy-and-deletion/",
+  "summary": "<p>AI memory systems cannot guarantee that every fact will be remembered. But can they ensure that two conflicting facts are not presented without warning? MemStore explains its approach.</p>\n<p>The post <a href=\"https://www.medianama.com/2026/11/223-memstore-ai-agent-memory-privacy-and-deletion/\">Interview: MemStore&#8217;s Diwank Singh Tomer and Ishita Jindal on AI agent memory, contradictions and deletion</a> appeared first on <a href=\"https://www.medianama.com\">MEDIANAMA</a>.</p>",
+  "published": "Fri, 13 Nov 2026 06:20:00 +0000",
+  "image_url": "https://www.medianama.com/wp-content/uploads/2025/06/artificial-intelligence-4389372_1280.jpg",
+  "llm_summary": "MemStore’s co‑founders Diwank Singh Tomer and Ishita Jindal explain how their AI‑agent platform tackles the tricky problem of memory: while it’s impossible to guarantee that an agent will retain every detail, they focus on ensuring that contradictory information is flagged rather than silently presented. Their solution combines selective, privacy‑preserving storage with mechanisms to detect and warn users about conflicts, and it also offers robust deletion tools so users can",
+  "source": "MediaNama"
+}

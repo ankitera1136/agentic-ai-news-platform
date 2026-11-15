@@ -1,0 +1,9 @@
+{
+  "title": "Customer support is the gnarliest AI problem",
+  "link": "https://stackoverflow.blog/2026/11/10/customer-support-is-the-gnarliest-ai-problem/",
+  "summary": "Ryan chats with Ahmad Al-Dahle, CTO at Airbnb, about deploying multi-party AI agents to tackle the uniquely gnarly problem of customer support, how a moving target of rigorous evaluations helps engineers balance latency against accuracy, and the ways in which AI coding tools demand an even higher level of judgment from software engineering teams.",
+  "published": "Tue, 10 Nov 2026 08:40:00 GMT",
+  "image_url": "https://cdn.stackoverflow.co/images/jo7n4k8s/production/e35a0c5eb319e7928c9ac0a2c2c782d29e644876-3120x1640.png?rect=0,1,3120,1638&w=1200&h=630&auto=format",
+  "llm_summary": "In a conversation with Airbnb CTO Ahmad Al‑Dahle, Ryan explores why customer‑support is one of the toughest AI challenges and how Airbnb is deploying multi‑party AI agents to handle it. He explains that a constantly shifting suite of rigorous evaluations forces engineers to strike the right balance between response latency and answer accuracy",
+  "source": "Stack Overflow Blog"
+}

@@ -1,0 +1,9 @@
+{
+  "title": "Your coding agent shouldn't grade its own homework",
+  "link": "https://stackoverflow.blog/2026/11/13/your-coding-agent-shouldn-t-grade-its-own-homework/",
+  "summary": "AI coding agents can now write design docs, mock up frontends, and implement entire projects end to end. But can they be trusted to verify that their own code actually works?",
+  "published": "Fri, 13 Nov 2026 17:27:39 GMT",
+  "image_url": "",
+  "llm_summary": "AI‑powered coding agents have progressed to the point where they can draft design documents, mock up user interfaces, and even build complete applications on their own. However, relying on these agents to test and validate their own output is risky—without independent verification, bugs and design flaws can slip through unnoticed.",
+  "source": "Stack Overflow Blog"
+}

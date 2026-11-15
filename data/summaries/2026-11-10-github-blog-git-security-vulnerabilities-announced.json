@@ -1,0 +1,9 @@
+{
+  "title": "Git security vulnerabilities announced",
+  "link": "https://github.blog/open-source/git/git-security-vulnerabilities-announced-7/",
+  "summary": "<p>Git is releasing updates addressing six security vulnerabilities affecting recursive clones, reference handling, merges, binary patches, and imports. Here is what users need to know.</p>\n<p>The post <a href=\"https://github.blog/open-source/git/git-security-vulnerabilities-announced-7/\">Git security vulnerabilities announced</a> appeared first on <a href=\"https://github.blog\">The GitHub Blog</a>.</p>",
+  "published": "Tue, 10 Nov 2026 18:00:00 +0000",
+  "image_url": "https://github.blog/wp-content/uploads/2026/01/generic-security-github-logo-blue.png",
+  "llm_summary": "Git has released updates that fix six newly disclosed security flaws affecting how the system handles recursive clones, reference processing, merges, binary patches, and imports. The patches address vulnerabilities that could let attackers manipulate repository data or execute code during these operations. Users should upgrade to the latest Git version to stay protected.",
+  "source": "GitHub Blog"
+}

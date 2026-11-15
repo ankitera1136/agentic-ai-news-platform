@@ -1,0 +1,9 @@
+{
+  "title": "Windows 0-day dropped by disgruntled researcher hands hackers System rights",
+  "link": "https://arstechnica.com/security/2026/11/windows-0-day-dropped-by-disgruntled-researcher-hands-hackers-system-rights/",
+  "summary": "\"SignDrop\" exploit lets local users gain all-powerful System rights.",
+  "published": "Fri, 13 Nov 2026 16:26:32 +0000",
+  "image_url": "https://cdn.arstechnica.net/wp-content/uploads/2026/07/GettyImages-1237693734-1152x648-1783631068.jpg",
+  "llm_summary": "A researcher who was upset released a Windows 0‑day called “SignDrop,” which lets anyone with local access run code with full System privileges. By exploiting a flaw in how Windows verifies signed binaries, the exploit can bypass security checks and give attackers complete control over the machine. Security experts warn that the vulnerability could be weaponized by hackers to take over vulnerable systems until a patch is issued.",
+  "source": "Ars Technica"
+}

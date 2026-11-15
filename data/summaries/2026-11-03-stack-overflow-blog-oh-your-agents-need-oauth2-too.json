@@ -1,0 +1,9 @@
+{
+  "title": "Oh, your agents need OAuth2, too",
+  "link": "https://stackoverflow.blog/2026/11/03/oh-your-agents-need-oauth2-too/",
+  "summary": "Recorded at LDX3 by LeadDev, Ryan chats with Dan Moore, Senior Director of CIAM Strategy and Identity Standards at FusionAuth, about adapting established OAuth2 protocols for the agentic era, the security necessity of giving autonomous AI agents their own distinct identities, and how AI coding tools are shifting developers&#x27; focus toward solving core business problems.",
+  "published": "Tue, 03 Nov 2026 08:40:00 GMT",
+  "image_url": "https://cdn.stackoverflow.co/images/jo7n4k8s/production/e35a0c5eb319e7928c9ac0a2c2c782d29e644876-3120x1640.png?rect=0,1,3120,1638&w=1200&h=630&auto=format",
+  "llm_summary": "In a recent LeadDev session, Ryan sat down with Dan Moore of FusionAuth to discuss how the classic OAuth 2.0 framework must evolve to support autonomous AI agents that act on behalf of users. Moore argues that giving each AI “agent” its own verifiable identity isn’t just a convenience—it’s a security imperative as these bots become more capable. He also notes that AI‑powered coding assistants are freeing developers from routine tasks",
+  "source": "Stack Overflow Blog"
+}

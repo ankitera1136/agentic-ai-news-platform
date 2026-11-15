@@ -806,6 +806,72 @@
             color: #fcd34d;
         }
 
+        .source-inc42 {
+            background: rgba(239, 68, 68, 0.25);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            color: #fca5a5;
+        }
+
+        .source-yourstory {
+            background: rgba(249, 115, 22, 0.25);
+            border: 1px solid rgba(249, 115, 22, 0.5);
+            color: #fdba74;
+        }
+
+        .source-et {
+            background: rgba(234, 179, 8, 0.25);
+            border: 1px solid rgba(234, 179, 8, 0.5);
+            color: #fde047;
+        }
+
+        .source-hindu {
+            background: rgba(20, 184, 166, 0.25);
+            border: 1px solid rgba(20, 184, 166, 0.5);
+            color: #5eead4;
+        }
+
+        .source-medianama {
+            background: rgba(99, 102, 241, 0.25);
+            border: 1px solid rgba(99, 102, 241, 0.5);
+            color: #a5b4fc;
+        }
+
+        .source-github {
+            background: rgba(30, 215, 96, 0.2);
+            border: 1px solid rgba(30, 215, 96, 0.45);
+            color: #86efac;
+        }
+
+        .source-stackoverflow {
+            background: rgba(244, 128, 36, 0.25);
+            border: 1px solid rgba(244, 128, 36, 0.5);
+            color: #fdba74;
+        }
+
+        .source-freecodecamp {
+            background: rgba(0, 200, 150, 0.2);
+            border: 1px solid rgba(0, 200, 150, 0.45);
+            color: #6ee7b7;
+        }
+
+        .source-tds {
+            background: rgba(14, 165, 233, 0.25);
+            border: 1px solid rgba(14, 165, 233, 0.5);
+            color: #7dd3fc;
+        }
+
+        .source-hackernews {
+            background: rgba(255, 102, 0, 0.25);
+            border: 1px solid rgba(255, 102, 0, 0.5);
+            color: #fdba74;
+        }
+
+        .source-mit {
+            background: rgba(165, 28, 48, 0.3);
+            border: 1px solid rgba(165, 28, 48, 0.6);
+            color: #fca5a5;
+        }
+
         .source-default {
             background: rgba(168, 85, 247, 0.25);
             border: 1px solid rgba(168, 85, 247, 0.5);
@@ -1075,12 +1141,16 @@
         <!-- Category Filter Pills with Emojis -->
         <div class="category-filter">
             <a class="pill active" onclick="filterCategory('All', this)">🌐 All Stories</a>
-            <a class="pill" onclick="filterCategory('Artificial Intelligence', this)">🤖 AI & Machine Learning</a>
-            <a class="pill" onclick="filterCategory('Big Tech', this)">🏢 Big Tech</a>
+            <a class="pill" onclick="filterCategory('Artificial Intelligence', this)">🤖 AI & ML</a>
+            <a class="pill" onclick="filterCategory('Indian Tech & Startups', this)">🇮🇳 India Tech</a>
+            <a class="pill" onclick="filterCategory('Careers & Hiring in Tech', this)">💼 Careers & Jobs</a>
+            <a class="pill" onclick="filterCategory('Open Source & Developer Tools', this)">🛠️ Dev Tools</a>
+            <a class="pill" onclick="filterCategory('Cybersecurity', this)">🔐 Cybersecurity</a>
+            <a class="pill" onclick="filterCategory('Cloud & Infrastructure', this)">☁️ Cloud</a>
             <a class="pill" onclick="filterCategory('Startups & Funding', this)">🚀 Startups & VC</a>
-            <a class="pill" onclick="filterCategory('Hardware & Gadgets', this)">💻 Hardware & Chips</a>
-            <a class="pill" onclick="filterCategory('Science & Space', this)">🪐 Science & Space</a>
-            <a class="pill" onclick="filterCategory('Gaming', this)">🎮 Gaming</a>
+            <a class="pill" onclick="filterCategory('Big Tech & Industry', this)">🏢 Big Tech</a>
+            <a class="pill" onclick="filterCategory('Science & Research', this)">🔬 Research</a>
+            <a class="pill" onclick="filterCategory('Hardware & Chips', this)">💻 Hardware</a>
             <a class="pill" onclick="filterCategory('Cybersecurity', this)">🔒 Cybersecurity</a>
             <a class="pill" onclick="filterCategory('Mobile & Apps', this)">📱 Mobile & Apps</a>
             <a class="pill" onclick="filterCategory('Enterprise & SaaS', this)">☁️ Enterprise Cloud</a>
@@ -1105,6 +1175,28 @@
                             <span class="source-badge source-wired"><i class="fa-solid fa-terminal"></i> Wired</span>
                         {% elif 'ars' in src %}
                             <span class="source-badge source-ars"><i class="fa-solid fa-newspaper"></i> Ars Technica</span>
+                        {% elif 'inc42' in src %}
+                            <span class="source-badge source-inc42"><i class="fa-solid fa-indian-rupee-sign"></i> Inc42</span>
+                        {% elif 'yourstory' in src %}
+                            <span class="source-badge source-yourstory"><i class="fa-solid fa-pen-nib"></i> YourStory</span>
+                        {% elif 'economic' in src or 'et tech' in src %}
+                            <span class="source-badge source-et"><i class="fa-solid fa-chart-line"></i> ET Tech</span>
+                        {% elif 'hindu' in src %}
+                            <span class="source-badge source-hindu"><i class="fa-solid fa-om"></i> The Hindu</span>
+                        {% elif 'medianama' in src %}
+                            <span class="source-badge source-medianama"><i class="fa-solid fa-broadcast-tower"></i> MediaNama</span>
+                        {% elif 'github' in src %}
+                            <span class="source-badge source-github"><i class="fa-brands fa-github"></i> GitHub</span>
+                        {% elif 'stack' in src or 'overflow' in src %}
+                            <span class="source-badge source-stackoverflow"><i class="fa-brands fa-stack-overflow"></i> Stack Overflow</span>
+                        {% elif 'freecodecamp' in src %}
+                            <span class="source-badge source-freecodecamp"><i class="fa-solid fa-fire"></i> freeCodeCamp</span>
+                        {% elif 'towards' in src or 'data science' in src %}
+                            <span class="source-badge source-tds"><i class="fa-solid fa-flask"></i> Towards DS</span>
+                        {% elif 'hacker' in src %}
+                            <span class="source-badge source-hackernews"><i class="fa-brands fa-y-combinator"></i> Hacker News</span>
+                        {% elif 'mit' in src %}
+                            <span class="source-badge source-mit"><i class="fa-solid fa-atom"></i> MIT Tech Review</span>
                         {% else %}
                             <span class="source-badge source-default"><i class="fa-solid fa-globe"></i> {{ article.source or 'Tech News' }}</span>
                         {% endif %}
@@ -1547,6 +1639,28 @@
                 return '<span class="source-badge source-wired"><i class="fa-solid fa-terminal"></i> Wired</span>';
             } else if (src.includes('ars')) {
                 return '<span class="source-badge source-ars"><i class="fa-solid fa-newspaper"></i> Ars Technica</span>';
+            } else if (src.includes('inc42')) {
+                return '<span class="source-badge source-inc42"><i class="fa-solid fa-indian-rupee-sign"></i> Inc42</span>';
+            } else if (src.includes('yourstory')) {
+                return '<span class="source-badge source-yourstory"><i class="fa-solid fa-pen-nib"></i> YourStory</span>';
+            } else if (src.includes('economic') || src.includes('et tech')) {
+                return '<span class="source-badge source-et"><i class="fa-solid fa-chart-line"></i> ET Tech</span>';
+            } else if (src.includes('hindu')) {
+                return '<span class="source-badge source-hindu"><i class="fa-solid fa-om"></i> The Hindu</span>';
+            } else if (src.includes('medianama')) {
+                return '<span class="source-badge source-medianama"><i class="fa-solid fa-broadcast-tower"></i> MediaNama</span>';
+            } else if (src.includes('github')) {
+                return '<span class="source-badge source-github"><i class="fa-brands fa-github"></i> GitHub</span>';
+            } else if (src.includes('stack') || src.includes('overflow')) {
+                return '<span class="source-badge source-stackoverflow"><i class="fa-brands fa-stack-overflow"></i> Stack Overflow</span>';
+            } else if (src.includes('freecodecamp')) {
+                return '<span class="source-badge source-freecodecamp"><i class="fa-solid fa-fire"></i> freeCodeCamp</span>';
+            } else if (src.includes('towards') || src.includes('data science')) {
+                return '<span class="source-badge source-tds"><i class="fa-solid fa-flask"></i> Towards DS</span>';
+            } else if (src.includes('hacker')) {
+                return '<span class="source-badge source-hackernews"><i class="fa-brands fa-y-combinator"></i> Hacker News</span>';
+            } else if (src.includes('mit')) {
+                return '<span class="source-badge source-mit"><i class="fa-solid fa-atom"></i> MIT Tech Review</span>';
             } else {
                 return `<span class="source-badge source-default"><i class="fa-solid fa-globe"></i> ${source || 'Tech News'}</span>`;
             }

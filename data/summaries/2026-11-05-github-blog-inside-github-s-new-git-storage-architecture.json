@@ -1,0 +1,9 @@
+{
+  "title": "Inside GitHub’s new Git storage architecture",
+  "link": "https://github.blog/engineering/architecture-optimization/inside-githubs-new-git-storage-architecture/",
+  "summary": "<p>GitHub's new Git storage architecture is built so thousands of agents can push to a single repository at once. Here's how it works.</p>\n<p>The post <a href=\"https://github.blog/engineering/architecture-optimization/inside-githubs-new-git-storage-architecture/\">Inside GitHub&#8217;s new Git storage architecture</a> appeared first on <a href=\"https://github.blog\">The GitHub Blog</a>.</p>",
+  "published": "Thu, 05 Nov 2026 20:23:21 +0000",
+  "image_url": "https://github.blog/wp-content/uploads/2026/11/customer-growth.png?resize=1024%2C483",
+  "llm_summary": "GitHub has redesigned its Git storage layer so that thousands of agents can push to the same repository simultaneously without bottlenecks. The new architecture shards objects across many storage nodes, uses a highly‑available metadata service, and streams data in parallel to keep write latency low. This lets large‑scale CI/CD pipelines and massive open‑source projects handle massive concurrent traffic while preserving Git’s consistency guarantees.",
+  "source": "GitHub Blog"
+}

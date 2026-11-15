@@ -1,0 +1,9 @@
+{
+  "title": "Agentic search doesn't find pages, it assembles answers",
+  "link": "https://stackoverflow.blog/2026/11/13/agentic-doesn-t-find-pages-it-assembles-answers/",
+  "summary": "Ryan sits down with Jeff Wang, co-founder at EXA, to talk about the huge scale required to support trillions of agentic searches, the technical complexities of building custom embeddings and performant vector databases from scratch, and the need to dedupe the massive amounts of redundant content on the web to deliver high-trust answers.",
+  "published": "Fri, 13 Nov 2026 08:40:00 GMT",
+  "image_url": "https://cdn.stackoverflow.co/images/jo7n4k8s/production/e35a0c5eb319e7928c9ac0a2c2c782d29e644876-3120x1640.png?rect=0,1,3120,1638&w=1200&h=630&auto=format",
+  "llm_summary": "In this interview, Jeff Wang—co‑founder of EXA— explains how “agentic” searches don’t simply fetch webpages; they synthesize answers by stitching together information from massive, curated knowledge bases. To make that work at trillion‑search scale, EXA builds its own custom embeddings and ultra‑fast vector databases, and it must aggressively deduplicate the web’s redundant content so the system can serve high‑trust, reliable responses.",
+  "source": "Stack Overflow Blog"
+}

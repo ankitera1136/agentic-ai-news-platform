@@ -1,0 +1,9 @@
+{
+  "title": "Rumors of the SaaS demise are greatly exaggerated",
+  "link": "https://stackoverflow.blog/2026/10/23/rumors-of-the-saas-demise-are-greatly-exaggerated/",
+  "summary": "Recorded on the floor of LDX3, Ryan chats with Nivia Henry, an engineering leader most recently at Netflix, about the reality of the supposed SaaS apocalypse, the complex calculus of the modern build-versus-buy decision in the era of AI, and the critical importance of understanding system architectures to manage long-term infrastructure costs.",
+  "published": "Fri, 23 Oct 2026 07:40:00 GMT",
+  "image_url": "https://cdn.stackoverflow.co/images/jo7n4k8s/production/e35a0c5eb319e7928c9ac0a2c2c782d29e644876-3120x1640.png?rect=0,1,3120,1638&w=1200&h=630&auto=format",
+  "llm_summary": "In a candid conversation recorded on the LDX3 stage, Ryan and former Netflix engineering leader Nivia Henry debunk the hype around a “SaaS apocalypse,” explaining that SaaS remains a vital, cost‑effective model for most businesses. She also dives into today’s nuanced build‑versus‑buy calculus—especially with AI tools reshaping development—and stresses that a deep grasp of system architecture is essential for keeping long‑term infrastructure expenses",
+  "source": "Stack Overflow Blog"
+}

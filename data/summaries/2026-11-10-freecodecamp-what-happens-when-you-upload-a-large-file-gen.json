@@ -1,0 +1,9 @@
+{
+  "title": "What Happens When You Upload a Large File & Generate a Temporary Download Link",
+  "link": "https://www.freecodecamp.org/news/how-file-transfer-services-work/",
+  "summary": "Sending a 5 GB video file might seem simple. You select the file, click Upload, wait for the progress bar to finish, and share a link with someone. But there are several things happening in the backgr",
+  "published": "Tue, 10 Nov 2026 13:20:32 +0000",
+  "image_url": "https://cdn.hashnode.com/uploads/covers/5fc16e412cae9c5b190b6cdd/5ab5b73d-ffb5-4c71-91b7-648b69bb79b7.png",
+  "llm_summary": "The user wants a summary of the article titled \"What Happens When You Upload a Large File & Generate a Temporary Download Link\". They gave a brief snippet: \"Sending a 5 GB video file might seem simple. You select the file, click Upload, wait for the progress bar to finish, and share a link with someone. But there are several things happening in the backgr\". Need to summarize for general tech audience in 2-3 sentences.\n\nWe need to infer likely content: steps like chunking, hashing, uploading to storage, CDN, generating signed URL, expiration,",
+  "source": "freeCodeCamp"
+}

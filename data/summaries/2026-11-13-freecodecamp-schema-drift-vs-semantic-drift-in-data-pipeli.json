@@ -1,0 +1,9 @@
+{
+  "title": "Schema Drift vs. Semantic Drift in Data Pipelines",
+  "link": "https://www.freecodecamp.org/news/schema-drift-vs-semantic-drift-in-data-pipelines/",
+  "summary": "When a column is removed from a source database or dataset, the next pipeline run usually fails, making the problem easy to detect. But when a field keeps the same name and data type but its meaning c",
+  "published": "Fri, 13 Nov 2026 11:23:18 +0000",
+  "image_url": "https://cdn.hashnode.com/uploads/covers/5e1e335a7a1d3fcc59028c64/ae47b7ae-2c13-49b9-bad7-a20a28edbecb.png",
+  "llm_summary": "When a column disappears from a source database, pipelines quickly break, making the issue obvious—this is called **schema drift**. In contrast, **semantic drift** occurs when a column’s name and data type stay the same but its meaning changes (e.g., “price” now includes taxes), which can silently corrupt downstream analytics and models. Detecting semantic drift requires monitoring data quality, business rules, and model performance rather than just structural checks",
+  "source": "freeCodeCamp"
+}

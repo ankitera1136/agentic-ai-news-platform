@@ -1,0 +1,9 @@
+{
+  "title": "How to Use shadcn/ui in React Native Applications [Full Handbook]",
+  "link": "https://www.freecodecamp.org/news/how-to-use-shadcn-ui-in-react-native-applications-full-handbook/",
+  "summary": "If you've built a couple of React Native apps, the following probably feels familiar. You start with a colors.ts file and a simple Button component. Everything looks fine at first. Then the design cha",
+  "published": "Thu, 05 Nov 2026 17:16:30 +0000",
+  "image_url": "https://cdn.hashnode.com/uploads/covers/5e1e335a7a1d3fcc59028c64/ddea2027-27b4-407e-83a5-d84bfd295627.png",
+  "llm_summary": "The article walks developers through integrating the **shadcn/ui** component library into React Native projects, starting from a basic setup (like a `colors.ts` file and a simple Button) and scaling up to a full design system. It explains common pitfalls—such as mismatched styling conventions and platform‑specific quirks",
+  "source": "freeCodeCamp"
+}

@@ -1,0 +1,9 @@
+{
+  "title": "Lovable apps expose passport details and more than 200K private messages",
+  "link": "https://www.crissyfield.de/research/lovable-en/",
+  "summary": "<p>Article URL: <a href=\"https://www.crissyfield.de/research/lovable-en/\">https://www.crissyfield.de/research/lovable-en/</a></p>\n<p>Comments URL: <a href=\"https://news.ycombinator.com/item?id=50499017\">https://news.ycombinator.com/item?id=50499017</a></p>\n<p>Points: 813</p>\n<p># Comments: 316</p>",
+  "published": "Sat, 14 Nov 2026 17:43:10 +0000",
+  "image_url": "https://www.crissyfield.de/images/research-lovable-opengraph.jpg",
+  "llm_summary": "A security researcher discovered that several popular “lovable” dating and messaging apps were unintentionally exposing users’ personal data—including passport numbers, phone numbers, email addresses and over 200 000 private chat messages—through insecure API endpoints and misconfigured servers. The flaws allowed anyone",
+  "source": "Hacker News"
+}

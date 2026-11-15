@@ -1,0 +1,9 @@
+{
+  "title": "It’s ok that computers are (sometimes) better than us",
+  "link": "https://stackoverflow.blog/2026/10/30/it-s-ok-that-computers-are-sometimes-better-than-us/",
+  "summary": "Ryan is joined by Charity Majors, co-founder and CTO at Honeycomb, for a conversation about applying the concept of immutable infrastructure to software development to treat code like cattle instead of pets, shifting the paradigm of system specifications to accommodate the rapid influx of AI-generated code, and navigating the complex ethical boundaries between system observability and human surveillance in modern technology ecosystems.",
+  "published": "Fri, 30 Oct 2026 07:40:00 GMT",
+  "image_url": "https://cdn.stackoverflow.co/images/jo7n4k8s/production/e35a0c5eb319e7928c9ac0a2c2c782d29e644876-3120x1640.png?rect=0,1,3120,1638&w=1200&h=630&auto=format",
+  "llm_summary": "In this episode, Ryan chats with Honeycomb co‑founder and CTO Charity Majors about treating code the way we treat infrastructure—viewing services as replaceable “cattle” rather than cherished “pets”—and how that mindset helps teams handle the flood",
+  "source": "Stack Overflow Blog"
+}

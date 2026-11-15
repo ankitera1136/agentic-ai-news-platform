@@ -62,10 +62,7 @@ def extract_image_url(entry):
         pass
     return ''
 
-try:
-    from backend.app.groq_client import call_groq
-except ImportError:
-    from app.groq_client import call_groq
+from backend.app.groq_client import call_groq
 
 def get_llm_summary_groq(title, summary, audience="general tech audience"):
     api_key = os.getenv("GROQ_API_KEY")
@@ -135,10 +132,27 @@ def is_duplicate_headline(new_title: str, existing_titles: list, jaccard_thresh=
     return False, None
 
 FEEDS = [
-    {'name': 'TechCrunch', 'url': 'https://techcrunch.com/feed/'},
-    {'name': 'The Verge', 'url': 'https://www.theverge.com/rss/index.xml'},
-    {'name': 'Wired', 'url': 'https://www.wired.com/feed/rss'},
-    {'name': 'Ars Technica', 'url': 'https://feeds.arstechnica.com/arstechnica/index'}
+    # ── Global Tech News ───────────────────────────────────────────────
+    {'name': 'TechCrunch',         'url': 'https://techcrunch.com/feed/'},
+    {'name': 'Ars Technica',       'url': 'https://feeds.arstechnica.com/arstechnica/index'},
+    {'name': 'MIT Tech Review',    'url': 'https://www.technologyreview.com/feed/'},
+    {'name': 'Wired',              'url': 'https://www.wired.com/feed/rss'},
+
+    # ── Indian IT & Startup Ecosystem ──────────────────────────────────
+    {'name': 'Inc42',              'url': 'https://inc42.com/feed/'},
+    {'name': 'YourStory',          'url': 'https://yourstory.com/feed'},
+    {'name': 'Economic Times Tech','url': 'https://economictimes.indiatimes.com/tech/rssfeeds/13357270.cms'},
+    {'name': 'MediaNama',          'url': 'https://www.medianama.com/feed/'},
+    {'name': 'The Hindu Tech',     'url': 'https://www.thehindu.com/sci-tech/technology/feeder/default.rss'},
+
+    # ── Developer & CS Learning ────────────────────────────────────────
+    {'name': 'GitHub Blog',        'url': 'https://github.blog/feed/'},
+    {'name': 'Stack Overflow Blog','url': 'https://stackoverflow.blog/feed/'},
+    {'name': 'freeCodeCamp',       'url': 'https://www.freecodecamp.org/news/rss/'},
+    {'name': 'Towards Data Science','url': 'https://towardsdatascience.com/feed'},
+
+    # ── Community Curated ──────────────────────────────────────────────
+    {'name': 'Hacker News',        'url': 'https://hnrss.org/frontpage'},
 ]
 
 def fetch_and_save_all_sources():
@@ -152,12 +166,8 @@ def fetch_and_save_all_sources():
     # Also load existing titles from DB for deduplication on production
     existing_titles = []
     try:
-        try:
-            from backend.app.database import SessionLocal as _SL
-            from backend.app.models import Article as _Art
-        except ImportError:
-            from app.database import SessionLocal as _SL
-            from app.models import Article as _Art
+        from backend.app.database import SessionLocal as _SL
+        from backend.app.models import Article as _Art
         _db = _SL()
         try:
             from datetime import timedelta
@@ -193,27 +203,48 @@ def fetch_and_save_all_sources():
             feed = feedparser.parse(response.content)
             print(f"Fetched {len(feed.entries)} entries from {source_name} RSS feed.")
 
-            for entry in feed.entries[:8]:  # Process top 8 entries per source
+            for entry in feed.entries[:15]:  # Process top 15 entries per source
                 title = entry.title
                 link = entry.link
                 summary = entry.summary if hasattr(entry, 'summary') else ''
                 published = entry.published if hasattr(entry, 'published') else (entry.updated if hasattr(entry, 'updated') else '')
 
                 date_str = ''
+                article_date = None
                 if hasattr(entry, 'published_parsed') and entry.published_parsed:
                     try:
-                        date_obj = datetime(*entry.published_parsed[:6])
-                        date_str = date_obj.strftime('%Y-%m-%d')
+                        article_date = datetime(*entry.published_parsed[:6])
+                        date_str = article_date.strftime('%Y-%m-%d')
                     except Exception:
                         date_str = datetime.now().strftime('%Y-%m-%d')
                 else:
                     date_str = datetime.now().strftime('%Y-%m-%d')
+
+                # FRESHNESS GATE: skip articles older than 60 days — prevents old reviews
+                # and stale content from polluting the student feed.
+                if article_date:
+                    age_days = (datetime.now() - article_date).days
+                    if age_days > 60:
+                        continue
 
                 filename_base = f"{date_str}-{slugify(source_name)}-{slugify(title)[:45]}"
                 json_filepath = os.path.join(SAVE_DIR, f"{filename_base}.json")
 
                 # Check exact file match (local dev)
                 if os.path.exists(json_filepath):
+                    continue
+
+                # RELEVANCE GATE: skip off-topic content not useful for CS students
+                SKIP_KEYWORDS = [
+                    'review: ', 'hands-on:', 'best deals', 'sale', 'discount', 'coupon',
+                    'black friday', 'gift guide', 'recipe', 'food', 'fashion', 'beauty',
+                    'pickleball', 'sports', 'nfl', 'nba', 'cricket', 'football', 'rei ',
+                    'litter box', 'pet ', 'hiking', 'camping', 'outdoor gear', 'headphone review',
+                    'tv review', 'mattress', 'pillow', 'coffee maker', 'vacuum',
+                    'best earbuds', 'best laptop deals', 'best phone deals',
+                ]
+                title_lower = title.lower()
+                if any(kw in title_lower for kw in SKIP_KEYWORDS):
                     continue
 
                 # Check cross-publisher duplicate headline
@@ -258,14 +289,9 @@ def fetch_and_save_all_sources():
 def _save_article_to_db(article_id, article_data, published_str):
     """Insert a single scraped article directly into DB with automatic categorization tags."""
     try:
-        try:
-            from backend.app.database import SessionLocal
-            from backend.app.models import Article, ArticleCategory
-            from backend.services.categorization_service import categorizer
-        except ImportError:
-            from app.database import SessionLocal
-            from app.models import Article, ArticleCategory
-            from services.categorization_service import categorizer
+        from backend.app.database import SessionLocal
+        from backend.app.models import Article, ArticleCategory
+        from backend.services.categorization_service import categorizer
 
         db = SessionLocal()
         try:

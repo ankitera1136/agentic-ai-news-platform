@@ -3,12 +3,8 @@ from typing import List, Dict
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, desc
 
-try:
-    from backend.app.models import User, Article, Category, ArticleCategory, DigestLog, UserSubscription
-    from backend.app.database import SessionLocal
-except ImportError:
-    from app.models import User, Article, Category, ArticleCategory, DigestLog, UserSubscription
-    from app.database import SessionLocal
+from backend.app.models import User, Article, Category, ArticleCategory, DigestLog, UserSubscription
+from backend.app.database import SessionLocal
 
 class DigestService:
     """Service for retrieving personalized articles for users"""

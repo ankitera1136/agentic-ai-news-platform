@@ -1,9 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-try:
-    from backend.app.models import Base, Category, User
-except ImportError:
-    from app.models import Base, Category, User
+from backend.app.models import Base, Category, User
 import os
 
 # Load .env file if present (local development)
@@ -97,16 +94,15 @@ def init_database():
         pass
         
     try:
-        try:
-            from backend.app.models import User
-        except ImportError:
-            from app.models import User
-        db_admin = SessionLocal()
-        admin_user = db_admin.query(User).filter(User.email == "18dkkaushik@gmail.com").first()
-        if admin_user and not admin_user.is_admin:
-            admin_user.is_admin = True
-            db_admin.commit()
-        db_admin.close()
+        from backend.app.models import User
+        admin_email = os.getenv("ADMIN_EMAIL", "").lower().strip()
+        if admin_email:
+            db_admin = SessionLocal()
+            admin_user = db_admin.query(User).filter(User.email == admin_email).first()
+            if admin_user and not admin_user.is_admin:
+                admin_user.is_admin = True
+                db_admin.commit()
+            db_admin.close()
     except Exception as e:
         print(f"Admin provisioning note: {e}")
     
@@ -116,59 +112,113 @@ def init_database():
         default_categories = [
             {
                 "name": "Artificial Intelligence",
-                "description": "AI, machine learning, and automation news",
-                "keywords": ["AI", "artificial intelligence", "machine learning", "ML", "neural network", "deep learning", "GPT", "LLM", "automation", "robot", "algorithm", "OpenAI", "ChatGPT", "Claude", "Anthropic", "Gemini", "DeepMind", "Nvidia", "Copilot", "reasoning", "model", "agent", "agentic", "Mistral", "Perplexity", "DeepSeek", "Midjourney", "GenAI", "generative AI", "diffusion", "inference", "prompt", "parameters", "transformer", "synthetic"]
+                "description": "AI, machine learning, LLMs, and automation — research and applications",
+                "keywords": ["AI", "artificial intelligence", "machine learning", "ML", "neural network",
+                             "deep learning", "GPT", "LLM", "large language model", "automation", "robot",
+                             "algorithm", "OpenAI", "ChatGPT", "Claude", "Anthropic", "Gemini", "DeepMind",
+                             "Copilot", "reasoning", "model", "agent", "agentic", "Mistral", "Perplexity",
+                             "DeepSeek", "Midjourney", "GenAI", "generative AI", "diffusion", "inference",
+                             "prompt", "transformer", "synthetic", "fine-tuning", "RAG", "embedding",
+                             "computer vision", "NLP", "natural language processing"]
             },
             {
-                "name": "Startups & Funding",
-                "description": "Startup news, funding rounds, and venture capital",
-                "keywords": ["startup", "startups", "funding", "fund", "funds", "venture capital", "VC", "investment", "investments", "investor", "investors", "seed", "Series A", "Series B", "Series C", "IPO", "acquisition", "acquires", "acquired", "merger", "valuation", "raise", "raises", "raised", "raising", "Y Combinator", "accelerator", "unicorn", "angel", "backed", "capital", "shares", "finances", "founder", "founders", "pre-seed", "stealth", "round", "billion", "million", "deal"]
+                "name": "Indian Tech & Startups",
+                "description": "Indian startup ecosystem, funding rounds, IT industry, and tech policy in India",
+                "keywords": ["India", "Indian", "Bangalore", "Bengaluru", "Mumbai", "Delhi", "Hyderabad",
+                             "Pune", "startup", "startups", "NASSCOM", "IT sector", "BPO", "ISRO",
+                             "Digital India", "Make in India", "UPI", "Aadhaar", "fintech India",
+                             "edtech India", "healthtech India", "Flipkart", "Zomato", "Swiggy", "Ola",
+                             "Paytm", "Byju", "Meesho", "PhonePe", "Navi", "Razorpay", "CRED", "Zepto",
+                             "unicorn India", "Series A India", "rupee", "SEBI", "RBI tech", "IIT", "IIM",
+                             "Inc42", "YourStory", "MediaNama", "funding India", "valuation India"]
             },
             {
-                "name": "Big Tech",
-                "description": "News from major technology companies",
-                "keywords": ["Google", "Apple", "Microsoft", "Amazon", "Meta", "Facebook", "Tesla", "Netflix", "Uber", "Twitter", "X", "Alphabet", "Qualcomm", "Intel", "TSMC", "AMD", "YouTube", "AWS", "Azure", "Samsung", "Sony", "Oracle", "IBM", "ByteDance", "OpenAI", "Nvidia", "SpaceX"]
+                "name": "Careers & Hiring in Tech",
+                "description": "Job market, layoffs, hiring trends, internships, and salaries in tech",
+                "keywords": ["hiring", "layoff", "layoffs", "job", "jobs", "career", "careers", "internship",
+                             "internships", "salary", "salaries", "placement", "placements", "fresher",
+                             "campus", "recruitment", "fired", "cut", "workforce", "employee", "employees",
+                             "headcount", "job market", "tech jobs", "software engineer", "developer job",
+                             "resume", "interview", "offer letter", "remote work", "hybrid", "work from home",
+                             "H1B", "visa", "immigration tech", "retrenchment", "downsizing"]
+            },
+            {
+                "name": "Open Source & Developer Tools",
+                "description": "Open source projects, developer tools, frameworks, programming languages, and GitHub",
+                "keywords": ["open source", "GitHub", "GitLab", "repository", "repo", "framework",
+                             "library", "SDK", "API", "developer", "developers", "programming",
+                             "Python", "JavaScript", "TypeScript", "Rust", "Go", "Java", "C++",
+                             "React", "Node.js", "FastAPI", "Django", "Docker", "Kubernetes",
+                             "Linux", "terminal", "CLI", "DevOps", "CI/CD", "deployment",
+                             "open-source", "contributing", "pull request", "package manager",
+                             "npm", "pip", "release", "version", "Stack Overflow", "freeCodeCamp",
+                             "tutorial", "documentation", "community", "contributor"]
+            },
+            {
+                "name": "Cloud & Infrastructure",
+                "description": "Cloud computing, serverless, databases, and backend infrastructure",
+                "keywords": ["cloud", "AWS", "Azure", "Google Cloud", "GCP", "serverless", "Lambda",
+                             "microservices", "database", "PostgreSQL", "MongoDB", "Redis", "Kafka",
+                             "infrastructure", "DevOps", "platform", "SaaS", "PaaS", "IaaS",
+                             "Cloudflare", "Vercel", "Netlify", "Kubernetes", "container", "Docker",
+                             "Snowflake", "Databricks", "data engineering", "data pipeline",
+                             "distributed systems", "scaling", "latency", "reliability", "uptime"]
             },
             {
                 "name": "Cybersecurity",
-                "description": "Security breaches, privacy, and cybersecurity news",
-                "keywords": ["security", "breach", "hack", "hacker", "hackers", "cybersecurity", "privacy", "data protection", "vulnerability", "vulnerabilities", "malware", "ransomware", "encryption", "spyware", "phishing", "exploit", "exploits", "zero-day", "leaked", "leak", "passwords", "CVE", "FBI", "CISA", "security flaw", "patch", "infosec", "threat actor", "trojan", "botnet", "ransom", "surveillance"]
+                "description": "Security vulnerabilities, data breaches, privacy, and ethical hacking",
+                "keywords": ["security", "breach", "hack", "hacker", "hackers", "cybersecurity",
+                             "privacy", "data protection", "vulnerability", "vulnerabilities",
+                             "malware", "ransomware", "encryption", "phishing", "exploit", "zero-day",
+                             "leaked", "leak", "passwords", "CVE", "bug bounty", "penetration testing",
+                             "ethical hacking", "VAPT", "infosec", "threat", "trojan", "surveillance",
+                             "CERT", "patch", "authentication", "2FA", "MFA"]
             },
             {
-                "name": "Mobile & Apps",
-                "description": "Mobile technology, apps, and smartphone news",
-                "keywords": ["mobile", "smartphone", "smartphones", "app", "apps", "iOS", "Android", "iPhone", "iPhones", "Samsung", "tablet", "tablets", "wearable", "iPad", "MacBook", "Galaxy", "Pixel", "Snapdragon", "app store", "play store", "firmware", "handset", "foldable", "smartwatch", "AirPods", "Vision Pro", "device", "devices", "gadget", "gadgets"]
+                "name": "Startups & Funding",
+                "description": "Global startup news, venture capital, funding rounds, and acquisitions",
+                "keywords": ["startup", "funding", "venture capital", "VC", "investment", "seed",
+                             "Series A", "Series B", "Series C", "IPO", "acquisition", "merger",
+                             "valuation", "raise", "raised", "Y Combinator", "accelerator", "unicorn",
+                             "angel", "capital", "founder", "founders", "pre-seed", "stealth",
+                             "billion", "million", "deal", "exit", "investors", "backed"]
             },
             {
-                "name": "Enterprise & SaaS",
-                "description": "Enterprise software and SaaS solutions",
-                "keywords": ["enterprise", "SaaS", "software", "cloud", "business", "productivity", "CRM", "ERP", "workflow", "collaboration", "database", "Snowflake", "Databricks", "Salesforce", "Kubernetes", "DevOps", "infrastructure", "B2B", "platform", "platforms", "API", "APIs", "microservices", "mainframe", "workplace", "analytics", "tools", "windows", "linux", "open-source"]
+                "name": "Big Tech & Industry",
+                "description": "News from major technology companies and IT industry trends",
+                "keywords": ["Google", "Apple", "Microsoft", "Amazon", "Meta", "Facebook", "Tesla",
+                             "Netflix", "Uber", "Twitter", "X", "Alphabet", "Qualcomm", "Intel",
+                             "TSMC", "AMD", "YouTube", "AWS", "Azure", "Samsung", "Oracle", "IBM",
+                             "ByteDance", "OpenAI", "Nvidia", "Infosys", "TCS", "Wipro", "HCL",
+                             "Accenture", "Cognizant", "Tech Mahindra", "earnings", "quarterly"]
             },
             {
-                "name": "Electric Vehicles",
-                "description": "Electric vehicles, autonomous driving, and transportation",
-                "keywords": ["electric vehicle", "EV", "EVs", "autonomous", "self-driving", "Tesla", "transportation", "battery", "charging", "mobility", "Rivian", "Lucid", "BYD", "autopilot", "FSD", "Waymo", "Cruise", "supercharger", "NACS", "range", "gigafactory", "electric car", "robotaxi", "cybercab"]
+                "name": "Science & Research",
+                "description": "Computer science research, scientific discoveries, space, and academia",
+                "keywords": ["research", "paper", "study", "published", "arxiv", "conference", "NeurIPS",
+                             "ICML", "CVPR", "ICLR", "IEEE", "ACM", "NASA", "ISRO", "space", "satellite",
+                             "quantum", "physics", "biology", "climate", "science", "discovery",
+                             "breakthrough", "experiment", "university", "academic", "PhD", "professor",
+                             "benchmark", "dataset", "evaluation", "results"]
             },
             {
-                "name": "Fintech",
-                "description": "Financial technology and digital payments",
-                "keywords": ["fintech", "cryptocurrency", "bitcoin", "blockchain", "payment", "digital wallet", "banking", "financial", "crypto", "DeFi", "Stripe", "PayPal", "Revolut", "stablecoin", "SEC", "Ethereum", "wallet", "trading", "finance", "card", "debit", "credit", "ledger"]
+                "name": "Hardware & Chips",
+                "description": "Semiconductors, CPUs, GPUs, chips, and computer hardware",
+                "keywords": ["hardware", "chip", "chips", "semiconductor", "processor", "CPU", "GPU",
+                             "ASML", "TSMC", "Intel", "AMD", "Qualcomm", "ARM", "RISC-V",
+                             "RAM", "memory", "laptop", "PC", "server", "data center", "TPU",
+                             "NPU", "silicon", "fabrication", "node", "nm", "wafer", "foundry",
+                             "supply chain", "Nvidia GPU", "graphics card", "compute"]
             },
             {
-                "name": "Science & Space",
-                "description": "Space exploration, physics, biology, and scientific discoveries",
-                "keywords": ["NASA", "SpaceX", "space", "satellite", "satellites", "telescope", "rocket", "astronomy", "physics", "quantum", "planet", "Mars", "Moon", "orbit", "spacecraft", "scientific", "science", "research", "climate", "solar", "energy", "biology", "synapses", "hibernation", "seismic", "Voyager", "BepiColombo", "CERN", "nuclear", "fusion"]
+                "name": "Product & Design",
+                "description": "Product launches, UX/UI design, mobile apps, and consumer technology",
+                "keywords": ["product", "launch", "released", "update", "feature", "app", "mobile",
+                             "iOS", "Android", "iPhone", "design", "UX", "UI", "user experience",
+                             "interface", "prototype", "beta", "v2", "redesign", "accessibility",
+                             "dark mode", "performance", "review", "hands-on", "teardown",
+                             "product manager", "roadmap", "feedback", "users", "subscription"]
             },
-            {
-                "name": "Hardware & Gadgets",
-                "description": "Computer hardware, chips, semiconductors, audio, and gear",
-                "keywords": ["hardware", "chip", "chips", "semiconductor", "semiconductors", "processor", "processors", "CPU", "GPU", "ASML", "TSMC", "Intel", "AMD", "Qualcomm", "RAM", "memory", "laptop", "laptops", "desktop", "PC", "monitor", "display", "screen", "headphones", "headset", "audio", "speakers", "backpack", "watch", "Casio", "gear", "accessories", "e-reader", "Boox", "drone"]
-            },
-            {
-                "name": "Gaming",
-                "description": "Video games, consoles, game engines, and esports",
-                "keywords": ["game", "games", "gaming", "gamer", "gamers", "PlayStation", "PS5", "Xbox", "Nintendo", "Switch", "Steam", "console", "gameplay", "esports", "Tetris", "Pokemon", "Pokmon", "GTA", "Roblox", "Unreal", "Unity", "Razer", "controller"]
-            }
         ]
         
         for cat_data in default_categories:

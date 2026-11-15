@@ -8,12 +8,8 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-try:
-    from backend.app.models import Article, Category, ArticleCategory
-    from backend.app.database import get_db, SessionLocal
-except ImportError:
-    from app.models import Article, Category, ArticleCategory
-    from app.database import get_db, SessionLocal
+from backend.app.models import Article, Category, ArticleCategory
+from backend.app.database import get_db, SessionLocal
 
 class CachedCategory:
     """Session-independent lightweight category representation to prevent DetachedInstanceError"""

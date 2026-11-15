@@ -1,0 +1,9 @@
+{
+  "title": "Learn Agentic Coding with Codex & AI Coding Agents",
+  "link": "https://www.freecodecamp.org/news/learn-agentic-coding-with-codex-ai-coding-agents/",
+  "summary": "AI coding agents such as Codex read your codebase, edit multiple files, and run commands and tests while they work through larger tasks with you. In Codex, an AGENTS.md file holds persistent instructi",
+  "published": "Tue, 10 Nov 2026 16:01:58 +0000",
+  "image_url": "https://i.ytimg.com/vi/ajfQWhGQGLE/maxresdefault.jpg",
+  "llm_summary": "AI coding agents like Codex can understand an entire codebase, make coordinated edits across multiple files, and even execute commands and tests as they help you tackle larger development tasks. In Codex, you can define long‑term behavior and preferences in an AGENTS.md file, giving the agent persistent instructions that guide its actions over time. This makes the tool act more like a collaborative teammate that remembers context and follows your workflow.",
+  "source": "freeCodeCamp"
+}

@@ -19,37 +19,40 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from datetime import timedelta
+# F11 FIX: Rate limiting
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 import json
 import re
 import requests
 
 # Import database, auth, models, services
+from backend.app.database import get_db, init_database
+from backend.app.auth import authenticate_user, create_access_token, get_current_active_user, get_current_admin_user, create_user, get_user_by_email, ACCESS_TOKEN_EXPIRE_MINUTES
+from backend.app.models import User, Category, Article, ArticleCategory, UserSubscription, DigestLog, Cluster
+from backend.app.schemas import *
+from backend.app.groq_client import call_groq, get_live_groq_models
+from backend.services.digest_service import digest_service
+from backend.services.categorization_service import categorizer
+from backend.services.history_service import history_service
+from backend.services.contradiction_engine import contradiction_engine
 try:
-    from backend.app.database import get_db, init_database
-    from backend.app.auth import authenticate_user, create_access_token, get_current_active_user, get_current_admin_user, create_user, get_user_by_email, ACCESS_TOKEN_EXPIRE_MINUTES
-    from backend.app.models import User, Category, Article, ArticleCategory, UserSubscription, DigestLog, Cluster
     from dedup.config import DEFAULT_CONFIG
-    from backend.app.schemas import *
-    from backend.app.groq_client import call_groq, get_live_groq_models
-    from backend.services.digest_service import digest_service
-    from backend.services.categorization_service import categorizer
-    from backend.services.history_service import history_service
-    from backend.services.contradiction_engine import contradiction_engine
 except ImportError:
-    from app.database import get_db, init_database
-    from app.auth import authenticate_user, create_access_token, get_current_active_user, get_current_admin_user, create_user, get_user_by_email, ACCESS_TOKEN_EXPIRE_MINUTES
-    from app.models import User, Category, Article, ArticleCategory, UserSubscription, DigestLog
-    from app.schemas import *
-    from app.groq_client import call_groq, get_live_groq_models
-    from services.digest_service import digest_service
-    from services.categorization_service import categorizer
-    from scrapers.techcrunch import fetch_and_save_techcrunch_articles
-    from services.history_service import history_service
-    from services.contradiction_engine import contradiction_engine
+    # dedup module is optional — provide a safe fallback config object
+    class _DefaultConfig:
+        dedup_mode = "cluster"
+    DEFAULT_CONFIG = _DefaultConfig()
 
 from fastapi.templating import Jinja2Templates
 
 app = FastAPI(title="Tech News Digest API", description="Personalized tech news digests and notifications")
+
+# F11 FIX: attach rate limiter
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
@@ -91,19 +94,23 @@ scheduler = AsyncIOScheduler()
 
 import asyncio
 
-def scheduled_news_scrape_job():
+def _run_scrape_sync():
+    """Synchronous scrape pipeline — runs in a threadpool worker, never on the event loop."""
     try:
         print("[SCHEDULER] Running background multi-source scrape, deduplication & sync...")
-        try:
-            from backend.scrapers.techcrunch import fetch_and_save_all_sources
-        except ImportError:
-            from scrapers.techcrunch import fetch_and_save_all_sources
+        from backend.scrapers.techcrunch import fetch_and_save_all_sources
+        retention_days = int(os.getenv("ARTICLE_RETENTION_DAYS", "30"))
         fetch_and_save_all_sources()
         categorizer.sync_articles_from_files()
         categorizer.deduplicate_existing_database()
-        categorizer.cleanup_old_articles(days=7)
+        categorizer.cleanup_old_articles(days=retention_days)
     except Exception as e:
         print(f"[SCHEDULER ERROR]: {e}")
+
+# F6 FIX: APScheduler async job — offloads blocking sync scrape to a thread
+# so the asyncio event loop stays free to serve HTTP requests during scraping.
+async def scheduled_news_scrape_job():
+    await asyncio.to_thread(_run_scrape_sync)
 
 async def run_startup_background_tasks():
     """Run recategorization and initial scrape in background without delaying server startup/ping responses"""
@@ -111,7 +118,7 @@ async def run_startup_background_tasks():
         await asyncio.to_thread(categorizer.recategorize_all_existing_articles)
     except Exception as e:
         print(f"[STARTUP BACKGROUND WARNING] Recategorization note: {e}")
-    await asyncio.to_thread(scheduled_news_scrape_job)
+    await asyncio.to_thread(_run_scrape_sync)
 
 # Initialize database and background scheduler on startup (Immediate port binding)
 @app.on_event("startup")
@@ -133,7 +140,7 @@ async def startup_event():
 async def vercel_cron_scrape():
     """Triggered by Vercel Cron or external scheduled pingers"""
     try:
-        await asyncio.to_thread(scheduled_news_scrape_job)
+        await asyncio.to_thread(_run_scrape_sync)
         return {"status": "success", "message": "Scrape completed successfully"}
     except Exception as e:
         return {"status": "error", "message": str(e)}
@@ -283,8 +290,9 @@ def select_relevant_articles(question, articles, top_n=6):
     return articles[:top_n]
 
 @app.post("/auth/register", response_model=UserResponse)
-async def register(user_data: UserCreate, db: Session = Depends(get_db)):
-    """Register a new user"""
+@limiter.limit("5/minute")
+async def register(request: Request, user_data: UserCreate, db: Session = Depends(get_db)):
+    """Register a new user (rate limited: 5 registrations/minute per IP)"""
     try:
         user = create_user(db, user_data.email, user_data.password, user_data.full_name)
         return user
@@ -372,8 +380,9 @@ async def google_login(request: Request, db: Session = Depends(get_db)):
 
 @app.get("/auth/me", response_model=UserResponse)
 async def get_current_user_info(current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
-    """Get current user information and ensure admin email has is_admin=True"""
-    if current_user.email.lower().strip() == "18dkkaushik@gmail.com" and not current_user.is_admin:
+    """Get current user information and auto-elevate the configured admin email"""
+    admin_email = os.getenv("ADMIN_EMAIL", "").lower().strip()
+    if admin_email and current_user.email.lower().strip() == admin_email and not current_user.is_admin:
         current_user.is_admin = True
         db.commit()
         db.refresh(current_user)
@@ -627,9 +636,15 @@ def get_articles_feed(
         )
         
     if getattr(DEFAULT_CONFIG, 'dedup_mode', 'cluster') == 'cluster':
+        # Only hide an article if:
+        # 1. It is explicitly marked as a copy (is_copy_of is set), OR
+        # 2. Its cluster has multiple surviving members AND it is not the primary
+        # This prevents stale cluster data from hiding unique stories.
         query = query.outerjoin(Cluster, Article.cluster_id == Cluster.id).filter(
             Article.is_copy_of.is_(None),
-            (Article.cluster_id.is_(None)) | (Cluster.primary_article_id == Article.id)
+            (Article.cluster_id.is_(None)) |
+            (Cluster.primary_article_id == Article.id) |
+            (Cluster.size <= 1)
         )
         
     total = query.count()
@@ -662,8 +677,9 @@ def get_articles_feed(
     }
 
 
-# In-Memory Cache for Cross-Source Factual Audits (article_id -> audit_report)
-FACT_CHECK_CACHE = {}
+# F1 FIX: TTL-bounded cache for cross-source fact audits (auto-evicts after 1 hour)
+from cachetools import TTLCache
+FACT_CHECK_CACHE = TTLCache(maxsize=512, ttl=3600)
 
 @app.get("/api/articles/{article_id}/cross-check")
 async def cross_check_article_facts(article_id: str, db: Session = Depends(get_db)):
@@ -790,11 +806,15 @@ def read_cards(request: Request, db: Session = Depends(get_db)):
             
     articles = []
     for art in db_articles:
-        # In cluster mode, only show cluster primaries / unique stories in feed
+        # In cluster mode, only suppress explicit copies or non-primary articles
+        # in clusters that actually have multiple surviving members.
         if getattr(DEFAULT_CONFIG, 'dedup_mode', 'cluster') == 'cluster':
             if art.is_copy_of is not None:
                 continue
-            if art.cluster and art.cluster.primary_article_id != art.id:
+            # Only hide if cluster has real multiple members AND this isn't the primary
+            if (art.cluster and
+                    art.cluster.size > 1 and
+                    art.cluster.primary_article_id != art.id):
                 continue
 
         c_size = art.cluster.size if getattr(art, 'cluster', None) else 1
@@ -818,6 +838,7 @@ def chat_page(request: Request):
     return templates.TemplateResponse(request=request, name="chat.html", context={})
 
 @app.post('/chat')
+@limiter.limit("10/minute")
 async def chat_endpoint(request: Request, db: Session = Depends(get_db)):
     data = await request.json()
     question = data.get('question', '')
@@ -859,11 +880,38 @@ async def chat_endpoint(request: Request, db: Session = Depends(get_db)):
 # In-memory AI Settings & Scraper Activity Logs Buffer
 from collections import deque
 
-AI_SETTINGS = {
+# F2 FIX: AI_SETTINGS persisted to disk so admin changes survive restarts
+_AI_SETTINGS_PATH = os.path.join(BASE_DIR, "data", "ai_settings.json")
+_AI_SETTINGS_DEFAULTS = {
     "model": "openai/gpt-oss-120b",
     "temperature": 0.7,
     "max_tokens": 800
 }
+
+def _load_ai_settings() -> dict:
+    """Load AI settings from disk, falling back to defaults if file missing or corrupt."""
+    try:
+        if os.path.exists(_AI_SETTINGS_PATH):
+            with open(_AI_SETTINGS_PATH, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                # Merge with defaults so new keys are always present
+                merged = dict(_AI_SETTINGS_DEFAULTS)
+                merged.update(data)
+                return merged
+    except Exception:
+        pass
+    return dict(_AI_SETTINGS_DEFAULTS)
+
+def _save_ai_settings(settings: dict):
+    """Persist AI settings to disk."""
+    try:
+        os.makedirs(os.path.dirname(_AI_SETTINGS_PATH), exist_ok=True)
+        with open(_AI_SETTINGS_PATH, "w", encoding="utf-8") as f:
+            json.dump(settings, f, indent=2)
+    except Exception as e:
+        print(f"[AI_SETTINGS] Could not persist settings: {e}")
+
+AI_SETTINGS = _load_ai_settings()
 
 SCRAPER_LOGS = deque(maxlen=100)
 
@@ -1007,10 +1055,11 @@ async def toggle_user_role(user_id: int, db: Session = Depends(get_db), admin: U
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-        
-    if user.email.lower().strip() == "18dkkaushik@gmail.com":
+
+    admin_email = os.getenv("ADMIN_EMAIL", "").lower().strip()
+    if admin_email and user.email.lower().strip() == admin_email:
         raise HTTPException(status_code=400, detail="Primary Admin account role cannot be modified.")
-        
+
     user.is_admin = not user.is_admin
     db.commit()
     log_admin_event(f"User '{user.email}' role toggled to {'Admin' if user.is_admin else 'User'}")
@@ -1041,7 +1090,9 @@ async def update_admin_ai_settings(data: dict, admin: User = Depends(get_current
             AI_SETTINGS["max_tokens"] = max(50, min(1000, int(data["max_tokens"])))
         except ValueError:
             pass
-            
+
+    # F2 FIX: persist to disk so changes survive restarts
+    _save_ai_settings(AI_SETTINGS)
     log_admin_event(f"AI Settings updated: Model={AI_SETTINGS['model']}, Temp={AI_SETTINGS['temperature']}")
     return {"status": "success", "settings": AI_SETTINGS}
 
@@ -1050,14 +1101,7 @@ async def trigger_manual_scrape(admin: User = Depends(get_current_admin_user)):
     """Trigger manual multi-source RSS scraping and categorization"""
     log_admin_event("Manual multi-source scrape triggered by Admin")
     try:
-        try:
-            from backend.scrapers.techcrunch import fetch_and_save_all_sources
-        except ImportError:
-            from scrapers.techcrunch import fetch_and_save_all_sources
-        fetch_and_save_all_sources()
-        categorizer.sync_articles_from_files()
-        categorizer.deduplicate_existing_database()
-        categorizer.cleanup_old_articles(days=7)
+        await asyncio.to_thread(_run_scrape_sync)
         log_admin_event("Multi-source scrape, deduplication and categorization completed successfully")
         return {"status": "success", "message": "Multi-source scrape, deduplication and categorization completed successfully!"}
     except Exception as e:

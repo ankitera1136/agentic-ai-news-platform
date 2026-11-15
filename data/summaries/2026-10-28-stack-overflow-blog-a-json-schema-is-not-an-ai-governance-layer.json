@@ -1,0 +1,9 @@
+{
+  "title": "A JSON schema Is not an AI governance layer",
+  "link": "https://stackoverflow.blog/2026/10/28/a-json-schema-is-not-an-ai-governance-layer/",
+  "summary": "The AI governance argument is happening one layer above the code that actually stops your agent.",
+  "published": "Wed, 28 Oct 2026 19:27:07 GMT",
+  "image_url": "https://cdn.stackoverflow.co/images/jo7n4k8s/production/0c60f7b40db43d83c41e715c86e9764a779aaf8a-2560x1344.jpg?w=1200&h=630&auto=format",
+  "llm_summary": "The article argues that using a JSON schema to validate an AI’s inputs or outputs is not true governance—it’s just a static check that sits above the code but never actually stops a misbehaving agent. Real AI governance needs to be built into the runtime layer that can intervene, monitor, and control the model’s actions, not",
+  "source": "Stack Overflow Blog"
+}

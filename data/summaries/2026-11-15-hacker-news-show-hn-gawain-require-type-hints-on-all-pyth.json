@@ -1,0 +1,9 @@
+{
+  "title": "Show HN: Gawain – Require type hints on all Python variables",
+  "link": "https://github.com/matheuzgomes/gawain",
+  "summary": "<p>Yes, i really hate \"dict[str, ANY]\"</p>\n<hr />\n<p>Comments URL: <a href=\"https://news.ycombinator.com/item?id=50504072\">https://news.ycombinator.com/item?id=50504072</a></p>\n<p>Points: 51</p>\n<p># Comments: 25</p>",
+  "published": "Sun, 15 Nov 2026 04:39:25 +0000",
+  "image_url": "https://opengraph.githubassets.com/02fc85fff7aca1063e62625414fe32017c7727e24e15be0d7bdf36cadb6eea06/matheuzgomes/gawain",
+  "llm_summary": "The Hacker News post spotlights **Gawain**, a new Python linter that enforces explicit type hints on every variable, pushing developers toward stricter static typing. Its creator expresses frustration with loosely‑typed constructs like `dict[str, ANY]`, arguing they undermine code clarity and safety.",
+  "source": "Hacker News"
+}
