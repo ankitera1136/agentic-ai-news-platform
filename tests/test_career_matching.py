@@ -174,8 +174,19 @@ def test_same_company_action_and_week_from_two_articles_becomes_one_signal(env):
     assert len(signal.signal_ids) == 2
 
 
-def test_same_company_in_different_weeks_stays_separate(env):
+def test_same_company_in_different_weeks_within_14_days_merges(env):
     env.add_signal(when=WEEK_45_TUE, article_id="a1")
+    env.add_signal(when=WEEK_46_TUE, article_id="a2")
+
+    db = env.db()
+    signals = matching.load_demand_signals(db, days=30, now=NOW)
+    db.close()
+
+    assert len(signals) == 1 and len(signals[0].articles) == 2
+
+
+def test_same_company_more_than_14_days_apart_stays_separate(env):
+    env.add_signal(when=datetime(2026, 10, 20, 9, 0, tzinfo=timezone.utc), article_id="a1")
     env.add_signal(when=WEEK_46_TUE, article_id="a2")
 
     db = env.db()

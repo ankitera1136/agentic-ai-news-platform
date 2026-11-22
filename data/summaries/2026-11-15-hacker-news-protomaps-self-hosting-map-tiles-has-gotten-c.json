@@ -1,0 +1,9 @@
+{
+  "title": "Protomaps: Self-hosting map tiles has gotten cheap and easy",
+  "link": "https://bruceroettgers.eu/blog/protomaps/",
+  "summary": "<p>Article URL: <a href=\"https://bruceroettgers.eu/blog/protomaps/\">https://bruceroettgers.eu/blog/protomaps/</a></p>\n<p>Comments URL: <a href=\"https://news.ycombinator.com/item?id=50509837\">https://news.ycombinator.com/item?id=50509837</a></p>\n<p>Points: 225</p>\n<p># Comments: 48</p>",
+  "published": "Sun, 15 Nov 2026 19:26:22 +0000",
+  "image_url": "",
+  "llm_summary": "Protomaps is a new, open‑source toolchain that lets anyone generate and serve their own vector map tiles from a simple, low‑cost static file store—no need for heavyweight tile servers or expensive cloud services. By leveraging modern browser rendering and compact, pre‑processed MBTiles, it reduces both infrastructure complexity and",
+  "source": "Hacker News"
+}

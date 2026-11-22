@@ -1,0 +1,9 @@
+{
+  "title": "WebGL Flight Simulator with seed generated terrain",
+  "link": "https://baron.by.dai.studio/",
+  "summary": "<p>Article URL: <a href=\"https://baron.by.dai.studio/\">https://baron.by.dai.studio/</a></p>\n<p>Comments URL: <a href=\"https://news.ycombinator.com/item?id=50510296\">https://news.ycombinator.com/item?id=50510296</a></p>\n<p>Points: 105</p>\n<p># Comments: 16</p>",
+  "published": "Sun, 15 Nov 2026 20:20:05 +0000",
+  "image_url": "https://baron.by.dai.studio/og-image.png",
+  "llm_summary": "A new browser‑based flight simulator demonstrates how WebGL can render an entire world on the fly: the terrain is generated procedurally from a single seed using noise",
+  "source": "Hacker News"
+}

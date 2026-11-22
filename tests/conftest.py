@@ -75,3 +75,11 @@ def make_article(career_db):
         return article
 
     return _make
+
+
+@pytest.fixture(autouse=True)
+def _hermetic_career_prefilter_flag(monkeypatch):
+    """The developer's .env may set CAREER_PREFILTER_ENABLED=true (it is loaded when the app
+    modules import). Tests must not depend on it: default to unset; tests that need the flag
+    set it themselves."""
+    monkeypatch.delenv("CAREER_PREFILTER_ENABLED", raising=False)

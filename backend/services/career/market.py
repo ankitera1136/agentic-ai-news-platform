@@ -4,9 +4,9 @@ Provides a company board, a city heatmap and a weekly trend. Everything is deriv
 stored signals: no LLM, no network, no article bodies. Numbers describe news coverage, not
 official hiring data, and headcount sums are never presented as complete totals.
 
-Dedupe follows backend/services/career/matching.py (same canonical company + action + ISO week,
-across articles, collapses to one signal; the highest-confidence signal wins) and reuses its
-helpers. matching.py itself is not modified, and a test checks both stay in agreement.
+Events come from matching.merge_events (same canonical company + action within 14 days, equal or
+missing counts, across articles and ISO weeks, collapse to one signal; the highest-confidence
+signal wins). The same function is used by matching.py, and a test checks both stay in agreement.
 """
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
@@ -24,6 +24,9 @@ from backend.services.career.matching import (
     _event_date,
     _plural,
     _public_article_ref,
+    merge_events,
+    merged_count,
+    MERGE_NOTE,
     clean_skill_list,
 )
 from backend.services.career.normalizer import normalize_company
@@ -70,24 +73,23 @@ def country_filter(country: Optional[str]) -> Optional[str]:
 
 def _load_market_signals(db: Session, cutoff: datetime, now_utc: datetime) -> List[DedupedSignal]:
     """HIRING / EXPANSION / NEW_OFFICE / LAYOFF / HIRING_FREEZE signals (current or planned),
-    deduped by company + action + ISO week with the same rules as matching.load_demand_signals."""
+    merged into events with matching.merge_events (same company + action within 14 days)."""
     rows = (
         db.query(CareerSignal, Article)
         .join(Article, Article.id == CareerSignal.source_article_id)
         .filter(CareerSignal.action.in_(MARKET_ACTIONS), CareerSignal.timing.in_(MARKET_TIMINGS))
         .all()
     )
-    groups: Dict[Tuple[str, str, int, int], List[Tuple[CareerSignal, Article, datetime]]] = {}
+    eligible = []
     for signal, article in rows:
         event = _event_date(article, signal)
         if event < cutoff or event > now_utc + timedelta(days=1):
             continue
-        iso_year, iso_week, _ = event.isocalendar()
-        key = (_company_key(signal.company), signal.action, iso_year, iso_week)
-        groups.setdefault(key, []).append((signal, article, event))
+        eligible.append((signal, article, event))
+    groups = merge_events(eligible)
 
     deduped: List[DedupedSignal] = []
-    for members in groups.values():
+    for members in groups:
         members.sort(key=lambda m: (-(m[0].confidence or 0.0), -m[2].timestamp(), m[0].id))
         best, _, best_event = members[0]
         articles: List[Dict[str, Optional[str]]] = []
@@ -103,7 +105,7 @@ def _load_market_signals(db: Session, cutoff: datetime, now_utc: datetime) -> Li
                 company=normalize_company(best.company).canonical or best.company,
                 action=best.action,
                 timing=best.timing,
-                count=best.count,
+                count=merged_count(members),
                 location_city=best.location_city,
                 location_country=best.location_country,
                 skills=clean_skill_list(
@@ -213,6 +215,7 @@ def company_board(
             "net_signal": net,
             "reported_hires": _headcount(growth),
             "reported_layoffs": _headcount(layoffs),
+            "reported_by_articles": len({ref["id"] for m in members for ref in m.signal.articles}),
             "articles": _unique_articles(members),
         })
     board.sort(key=lambda c: (-(c["growth"] + c["cuts"]), c["company"].casefold()))
@@ -226,6 +229,7 @@ def company_board(
         "basis": _basis(items, _period(days), wanted),
         "note": NOTE,
         "headcount_note": HEADCOUNT_NOTE,
+        "merge_note": MERGE_NOTE,
     }
 
 
@@ -326,6 +330,7 @@ def heatmap_points(
         "note": NOTE + " Locations are the places the articles state. Places not in the built-in "
                        "coordinate table are listed, not plotted.",
         "headcount_note": HEADCOUNT_NOTE,
+        "merge_note": MERGE_NOTE,
     }
 
 

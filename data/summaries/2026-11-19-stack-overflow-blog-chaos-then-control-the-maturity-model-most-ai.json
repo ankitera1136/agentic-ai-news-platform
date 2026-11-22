@@ -1,0 +1,9 @@
+{
+  "title": "Chaos, then control: the maturity model most AI rollouts skip over",
+  "link": "https://stackoverflow.blog/2026/11/19/chaos-then-control/",
+  "summary": "Every engineering org has rolled out AI coding tools by now, but far fewer have actually seen the outcomes they were hoping for.",
+  "published": "Thu, 19 Nov 2026 08:40:00 GMT",
+  "image_url": "https://cdn.stackoverflow.co/images/jo7n4k8s/production/89a7c761862499db37bf759db9607b85625d3d19-3840x2160.png?rect=0,72,3840,2016&w=1200&h=630&auto=format",
+  "llm_summary": "Engineering teams have rushed to deploy AI‑powered coding assistants, but most have never moved beyond the initial “chaos” phase—where tools are introduced haphazardly and expectations go unmet. The article argues that a proven maturity model—covering planning, governance, skill‑building, and continuous measurement",
+  "source": "Stack Overflow Blog"
+}

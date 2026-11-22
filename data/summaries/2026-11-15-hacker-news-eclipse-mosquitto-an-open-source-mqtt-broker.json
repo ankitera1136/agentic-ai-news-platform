@@ -1,0 +1,9 @@
+{
+  "title": "Eclipse Mosquitto – An open source MQTT broker",
+  "link": "https://github.com/eclipse-mosquitto/mosquitto",
+  "summary": "<p>Article URL: <a href=\"https://github.com/eclipse-mosquitto/mosquitto\">https://github.com/eclipse-mosquitto/mosquitto</a></p>\n<p>Comments URL: <a href=\"https://news.ycombinator.com/item?id=50509416\">https://news.ycombinator.com/item?id=50509416</a></p>\n<p>Points: 75</p>\n<p># Comments: 29</p>",
+  "published": "Sun, 15 Nov 2026 18:36:40 +0000",
+  "image_url": "https://repository-images.githubusercontent.com/53614190/b11dd480-90b3-11eb-903d-8c48f62e3172",
+  "llm_summary": "Eclipse Mosquitto is a lightweight, open‑source MQTT broker that lets devices publish and subscribe to real‑time messages, making it a go‑to solution for IoT and low‑bandwidth applications. Its active GitHub repository (https://github.com/eclipse-mosquitto/mosquitto) has attracted strong community interest—earning",
+  "source": "Hacker News"
+}

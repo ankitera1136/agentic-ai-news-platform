@@ -1,0 +1,9 @@
+{
+  "title": "Qwen4-Max",
+  "link": "https://qwen.ai/blog?id=qwen4-max",
+  "summary": "<p>Article URL: <a href=\"https://qwen.ai/blog?id=qwen4-max\">https://qwen.ai/blog?id=qwen4-max</a></p>\n<p>Comments URL: <a href=\"https://news.ycombinator.com/item?id=50513215\">https://news.ycombinator.com/item?id=50513215</a></p>\n<p>Points: 205</p>\n<p># Comments: 65</p>",
+  "published": "Mon, 16 Nov 2026 02:14:44 +0000",
+  "image_url": "https://img.alicdn.com/imgextra/i4/O1CN01OXv3EM1FN8t9W4P79_!!6000000000474-2-tps-80-80.png",
+  "llm_summary": "The user wants a summary of the article and comments. Provide 2-3 sentences summarizing for general tech audience. Need to browse? Not possible. Use knowledge: Qwen4-Max is a large language model from Alibaba's Qwen series, 2024 release, 130B parameters, open-source, high performance, instruction-following, multimodal? Provide summary: It's a new LLM, open-source, aims to compete with GPT-4, etc. Also mention reception on HN: high points, discussion about performance, licensing, hardware requirements, comparisons. Provide",
+  "source": "Hacker News"
+}

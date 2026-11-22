@@ -1,0 +1,9 @@
+{
+  "title": "Building the Agent Host Protocol for sessions that continue across devices",
+  "link": "https://github.blog/engineering/engineering-principles/building-the-agent-host-protocol-for-sessions-that-continue-across-devices/",
+  "summary": "<p>Discover how we built the open Agent Host Protocol to keep your agent sessions accessible across editors, apps, phones, and the cloud.</p>\n<p>The post <a href=\"https://github.blog/engineering/engineering-principles/building-the-agent-host-protocol-for-sessions-that-continue-across-devices/\">Building the Agent Host Protocol for sessions that continue across devices</a> appeared first on <a href=\"https://github.blog\">The GitHub Blog</a>.</p>",
+  "published": "Tue, 17 Nov 2026 18:20:40 +0000",
+  "image_url": "https://github.blog/wp-content/uploads/2026/11/ahp-protocol-state.png?resize=1024%2C512",
+  "llm_summary": "The post explains how GitHub created an open “Agent Host Protocol” that lets AI‑powered agents maintain a continuous session no matter which editor, app, phone, or cloud service you switch to. By standardizing how agents communicate with their host environments, developers can build tools that hand off context seamlessly across devices, improving productivity and user experience.",
+  "source": "GitHub Blog"
+}

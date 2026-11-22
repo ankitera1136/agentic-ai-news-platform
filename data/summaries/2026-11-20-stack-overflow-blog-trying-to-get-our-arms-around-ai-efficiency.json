@@ -1,0 +1,9 @@
+{
+  "title": "Trying to get our Arms around AI efficiency",
+  "link": "https://stackoverflow.blog/2026/11/20/trying-to-get-our-arms-around-ai-efficiency/",
+  "summary": "Ryan sits down with Alex Spinelli, Senior Vice President of AI and Developer Platforms at Arm, for a conversation about bringing ML capabilities to edge devices, adapting software tools to meet the unique demands of autonomous agents, and the critical importance of prioritizing functional safety as artificial intelligence transitions into the physical world of robotics.",
+  "published": "Fri, 20 Nov 2026 08:40:00 GMT",
+  "image_url": "https://cdn.stackoverflow.co/images/jo7n4k8s/production/e35a0c5eb319e7928c9ac0a2c2c782d29e644876-3120x1640.png?rect=0,1,3120,1638&w=1200&h=630&auto=format",
+  "llm_summary": "In a candid interview, Ryan talks with Alex Spinelli, Arm’s senior VP for AI and Developer Platforms, about how the company is pushing machine‑learning capabilities onto edge devices and reshaping its software tools for the demands of autonomous agents. Spinelli emphasizes that as AI moves from the cloud into real‑world robots and other physical systems, ensuring functional safety becomes a non‑negotiable priority. The discussion highlights Arm’s strategy",
+  "source": "Stack Overflow Blog"
+}

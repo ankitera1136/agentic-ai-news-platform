@@ -1,0 +1,9 @@
+{
+  "title": "The most misunderstood graph in AI just got a major update",
+  "link": "https://www.technologyreview.com/2026/11/20/1149399/the-most-misunderstood-graph-in-ai-just-got-a-major-update/",
+  "summary": "A new report from the AI evaluation nonprofit METR finds that some AI capabilities are continuing to improve along an exponential trajectory—but it also indicates that models aren’t quite as good at tasks that require judgment as they are at coding.  The report is an update to the organization’s time horizon plot, which was widely&#8230;",
+  "published": "Fri, 20 Nov 2026 18:15:15 +0000",
+  "image_url": "https://wp.technologyreview.com/wp-content/uploads/2026/11/metr2a.jpg?resize=1200,600",
+  "llm_summary": "A new METR report updates the infamous “time‑horizon” graph, showing that many AI capabilities—especially coding and pattern‑recognition tasks—are still climbing an exponential curve, while abilities that require nuanced judgment are lagging behind. The data suggest that, although AI keeps getting faster and more powerful in narrow, technical domains, its progress in understanding context, intent, or ethical nuance remains comparatively slower. This contrast reshapes expectations about where AI will excel next",
+  "source": "MIT Tech Review"
+}

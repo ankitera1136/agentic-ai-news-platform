@@ -1,0 +1,9 @@
+{
+  "title": "Mini.nvim Is Now on Tangled",
+  "link": "https://tangled.org/nvim-mini.org/mini.nvim",
+  "summary": "<p>Article URL: <a href=\"https://tangled.org/nvim-mini.org/mini.nvim\">https://tangled.org/nvim-mini.org/mini.nvim</a></p>\n<p>Comments URL: <a href=\"https://news.ycombinator.com/item?id=50512231\">https://news.ycombinator.com/item?id=50512231</a></p>\n<p>Points: 45</p>\n<p># Comments: 12</p>",
+  "published": "Sun, 15 Nov 2026 23:55:41 +0000",
+  "image_url": "https://ogre.tangled.network/card?payload=eyJ0eXBlIjoicmVwb3NpdG9yeSIsInJlcG9OYW1lIjoibWluaS5udmltIiwib3duZXJIYW5kbGUiOiJudmltLW1pbmkub3JnIiwic3RhcnMiOjM2LCJwdWxscyI6MCwiaXNzdWVzIjoxLCJjcmVhdGVkQXQiOiIyMDI2LTExLTE0VDEzOjQyOjExWiIsImF2YXRhclVybCI6Imh0dHBzOi8vdGFuZ2xlZC5vcmcvYXZhdGFyL2RpZCUzQXBsYyUzQXdtanJ4Y3IyenF2NDVsamN1b2locTVhYz9zaXplPTI1NiZmb3JtYXQ9anBlZyIsImxhbmd1YWdlcyI6W3siY29sb3IiOiIjMDAwMDgwIiwicGVyY2VudGFnZSI6MTAwfSx7ImNvbG9yIjoiIzg5ZTA1MSIsInBlcmNlbnRhZ2UiOjB9LHsiY29sb3IiOiIjNDI3ODE5IiwicGVyY2VudGFnZSI6MH0seyJjb2xvciI6IiMxZTRhZWMiLCJwZXJjZW50YWdlIjowfSx7ImNvbG9yIjoiIzE5OWY0YiIsInBlcmNlbnRhZ2UiOjB9XX0",
+  "llm_summary": "Mini.nvim—a lightweight, modular collection of Neovim plugins—has just been added to the Tangled package registry, making it",
+  "source": "Hacker News"
+}

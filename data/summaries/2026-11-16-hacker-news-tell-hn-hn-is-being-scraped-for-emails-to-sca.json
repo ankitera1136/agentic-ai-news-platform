@@ -1,0 +1,9 @@
+{
+  "title": "Tell HN: HN is being scraped for emails to scam",
+  "link": "https://news.ycombinator.com/item?id=50513451",
+  "summary": "<p>I know that many folks here post their personal emails in the Who's for Hire monthly pages and other places, and want to remind you that this public site gets views from folks with ill intent (or their bots/agents) as well. I use unique emails for every site, so I immediately knew that the late AWS payments email sent to my HN email were fake. There were other tells, but I want to remind everyone to be vigilant! HN is public but even social media sites where you supposedly can make your page private I've had some of those emails suddenly have spam sent to as well. Please be safe everyone!<p>My favorite tells that an email is a scam:\n- Before opening a surprising/suspicious email, hover over the sender name to see the domain the sender came from (don't open the email if it's strange).\n- _If_ you already opened the email, before clicking any links in the email, hover over them to see the domain that the link sends you to.<p>There are dozens more tips but a full article would be required, and these two will prevent you from falling for nearly all of them.</p>\n<hr />\n<p>Comments URL: <a href=\"https://news.ycombinator.com/item?id=50513451\">https://news.ycombinator.com/item?id=50513451</a></p>\n<p>Points: 25</p>\n<p># Comments: 4</p>",
+  "published": "Mon, 16 Nov 2026 02:53:30 +0000",
+  "image_url": "",
+  "llm_summary": "A Hacker News user warns that the site’s public email listings are being harvested by scammers, so they recommend using a unique address for each platform and staying alert for phishing. The simplest defenses are to hover over the sender’s address and any links before opening or clicking, which catches the vast majority of",
+  "source": "Hacker News"
+}

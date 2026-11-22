@@ -1,0 +1,9 @@
+{
+  "title": "How to Write an API Migration Guide (With a Real Example)",
+  "link": "https://www.freecodecamp.org/news/how-to-write-an-api-migration-guide/",
+  "summary": "When an API releases a new version, every developer using it has to update their code. If they only get a changelog entry that says “pagination now uses cursors,” then they’ll have to figure things ou",
+  "published": "Fri, 20 Nov 2026 18:40:04 +0000",
+  "image_url": "https://cdn.hashnode.com/uploads/covers/5e1e335a7a1d3fcc59028c64/47f2ef1a-31ff-4032-9f99-f98e293f7d92.png",
+  "llm_summary": "When an API rolls out a new version, developers need clear instructions to update their code—",
+  "source": "freeCodeCamp"
+}

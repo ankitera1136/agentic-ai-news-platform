@@ -261,6 +261,72 @@ def ground_count(
 
 
 # ---------------------------------------------------------------------------
+# Estimates are not counts
+# ---------------------------------------------------------------------------
+# A number in a hedged sentence ("estimates suggest around 1,000 employees", "reportedly
+# cutting nearly 1,000 jobs", "has not been confirmed") is an estimate, not a stated count.
+# Cues that hedge the whole sentence.
+ESTIMATE_CUES = re.compile(
+    r"\b(?:estimates?|estimated|reportedly|could|may)\b"
+    r"|\bnot\s+(?:yet\s+)?been\s+confirmed\b|\bnot\s+(?:yet\s+)?confirmed\b|\bunconfirmed\b",
+    re.IGNORECASE,
+)
+# Cues that hedge only the number right after them ("nearly 1,000 jobs"), not another number in
+# the same sentence ("about 22 per cent, affecting 1,271 employees").
+_NUMBER_HEDGES = re.compile(r"\b(?:around|approximately|nearly|about)\b", re.IGNORECASE)
+_SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+(?=[A-Z\"\u201c\u2018(])")
+
+
+def _first_mention_after(text: str, start: int) -> Optional["NumberMention"]:
+    """The first number mentioned in `text[start:]` (digits or words), or None."""
+    tail = text[start:]
+    spans = []
+    for m in _DIGIT_MENTION_RE.finditer(tail):
+        number = float(m.group("num").replace(",", ""))
+        unit = (m.group("unit") or "").strip().lower()
+        pct = unit in _PERCENT_UNITS
+        if unit in _SCALES:
+            number *= _SCALES[unit]
+        converted = _to_int(number)
+        if converted is not None:
+            spans.append((m.start(), NumberMention(converted, pct)))
+    for m in _WORD_PHRASE_RE.finditer(tail):
+        if m.group(0).strip().lower() in ("a", "an", "and"):
+            continue
+        converted = parse_word_number(m.group(0))
+        if converted is not None:
+            spans.append((m.start(), NumberMention(converted, False)))
+    return min(spans, key=lambda x: x[0])[1] if spans else None
+
+
+def estimate_cue_in_count_sentence(count: Optional[int], quote: Optional[str]) -> Optional[str]:
+    """The estimate cue found in a sentence of `quote` that states `count`, else None.
+
+    Only sentences that contain the number are checked. Sentence-wide cues (estimate,
+    reportedly, could, may, "not been confirmed") apply anywhere in that sentence; around /
+    approximately / nearly / about apply only when the count is the number they introduce.
+    A count that is not in the quote is left alone.
+    """
+    if count is None or not quote:
+        return None
+    for sentence in _SENTENCE_SPLIT.split(quote):
+        if not any(m.value == count and not m.is_percentage for m in iter_number_mentions(sentence)):
+            continue
+        cue = ESTIMATE_CUES.search(sentence)
+        if cue:
+            return cue.group(0).lower()
+        for hedge in _NUMBER_HEDGES.finditer(sentence):
+            first = _first_mention_after(sentence, hedge.end())
+            if first is not None and first.value == count and not first.is_percentage:
+                return hedge.group(0).lower()
+    return None
+
+
+def count_is_estimated(count: Optional[int], quote: Optional[str]) -> bool:
+    return estimate_cue_in_count_sentence(count, quote) is not None
+
+
+# ---------------------------------------------------------------------------
 # Skills and locations
 # ---------------------------------------------------------------------------
 
@@ -283,6 +349,104 @@ def ground_skills(skills: List[str], source_text: str) -> Tuple[List[str], List[
             kept.append(skill)
         else:
             dropped.append(skill)
+    return kept, dropped
+
+
+# ---------------------------------------------------------------------------
+# Job titles are not skills
+# ---------------------------------------------------------------------------
+# "engineer", "senior engineer", "software engineer" are roles, not skills. A skill string
+# that is only a title is dropped; a title suffix on a technology is removed
+# ("Python developer" -> "Python").
+_TITLE_WORDS = {
+    "engineer", "engineers", "developer", "developers", "manager", "managers",
+    "analyst", "analysts", "intern", "interns", "associate", "associates",
+    "lead", "leads", "director", "directors", "executive", "executives",
+    "staff", "employee", "employees", "worker", "workers",
+}
+_SENIORITY_WORDS = {"senior", "junior", "sr", "jr", "principal", "chief", "head"}
+# What is left after removing a title is not a skill either ("Data analyst" -> "Data").
+_GENERIC_REMAINDERS = {
+    "software", "data", "it", "tech", "technical", "engineering", "development", "team",
+    "product", "project", "business", "web", "and", "&",
+}
+
+
+def _bare(token: str) -> str:
+    return token.strip(" .,;:()[]\"'").lower()
+
+
+def clean_job_title_skill(skill: str) -> Optional[str]:
+    """Return the skill without job-title words, or None when nothing skill-like remains."""
+    tokens = str(skill or "").split()
+    if not tokens:
+        return None
+    # Leading seniority ("Senior Python developer" -> "Python developer").
+    while len(tokens) > 1 and _bare(tokens[0]) in _SENIORITY_WORDS:
+        tokens = tokens[1:]
+    # Trailing title words ("Python developer" -> "Python").
+    while tokens and _bare(tokens[-1]) in _TITLE_WORDS:
+        tokens = tokens[:-1]
+    # Trailing seniority/generic words left behind ("Python senior" is unlikely, "software").
+    remaining = [t for t in tokens if _bare(t)]
+    if not remaining:
+        return None
+    if all(_bare(t) in _SENIORITY_WORDS | _GENERIC_REMAINDERS | _TITLE_WORDS for t in remaining):
+        return None
+    return " ".join(remaining)
+
+
+def clean_job_title_skills(skills: Iterable[str]) -> Tuple[List[str], int]:
+    """Apply clean_job_title_skill to a list. Returns (cleaned skills, number dropped entirely)."""
+    cleaned: List[str] = []
+    dropped = 0
+    for raw in skills or []:
+        text = str(raw).strip()
+        if not text:
+            continue
+        result = clean_job_title_skill(text)
+        if result is None:
+            dropped += 1
+        else:
+            cleaned.append(result)
+    return cleaned, dropped
+
+
+# ---------------------------------------------------------------------------
+# Generic non-skills
+# ---------------------------------------------------------------------------
+# Business functions and umbrella words are not learnable skills for a student's gap
+# analysis. Dropped (whole-string match, case-insensitive, optional trailing "skills"):
+#   functions/departments: digital, finance, accounting, human resources, HR, procurement,
+#       marketing, legal, sales, operations, customer service/support, administration,
+#       supply chain, management
+#   umbrella words: business, technology, tech, software, engineering, IT, data
+#   vague AI umbrella terms: AI, AI models, AI tools, artificial intelligence (AI) --
+#       "machine learning", "generative AI", "LLM", "computer vision" etc. are KEPT.
+GENERIC_SKILLS = {
+    "digital", "finance", "accounting", "human resources", "hr", "procurement", "marketing",
+    "legal", "sales", "operations", "customer service", "customer support", "administration",
+    "supply chain", "management", "business", "technology", "tech", "software", "engineering",
+    "it", "data", "digital transformation",
+    "ai", "ai models", "ai tools", "artificial intelligence", "artificial intelligence (ai)",
+}
+
+
+def is_generic_skill(skill: str) -> bool:
+    key = re.sub(r"\s+", " ", str(skill or "").strip().strip(".,;:").lower())
+    key = re.sub(r"\s+skills?$", "", key)
+    return key in GENERIC_SKILLS
+
+
+def drop_generic_skills(skills: Iterable[str]) -> Tuple[List[str], int]:
+    """Remove generic non-skills. Returns (kept, number dropped)."""
+    kept: List[str] = []
+    dropped = 0
+    for raw in skills or []:
+        if is_generic_skill(raw):
+            dropped += 1
+        elif str(raw).strip():
+            kept.append(raw)
     return kept, dropped
 
 
@@ -358,6 +522,9 @@ class DropCounters:
     invalid_confidence: int = 0
     evidence_quote: int = 0
     skill_not_grounded: int = 0
+    job_title_skill: int = 0
+    generic_skill: int = 0
+    estimated_count: int = 0
     location_not_grounded: int = 0
     count_percentage: int = 0
     count_not_grounded: int = 0

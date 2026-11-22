@@ -1,0 +1,9 @@
+{
+  "title": "Tor Project Issues Rapid-Response DoS-Defense Fix Amid Sustained DDoS Attack",
+  "link": "https://forum.torproject.org/t/security-release-0-4-9-17/22454",
+  "summary": "<p>Article URL: <a href=\"https://forum.torproject.org/t/security-release-0-4-9-17/22454\">https://forum.torproject.org/t/security-release-0-4-9-17/22454</a></p>\n<p>Comments URL: <a href=\"https://news.ycombinator.com/item?id=50512441\">https://news.ycombinator.com/item?id=50512441</a></p>\n<p>Points: 72</p>\n<p># Comments: 19</p>",
+  "published": "Mon, 16 Nov 2026 00:21:54 +0000",
+  "image_url": "https://forum.torproject.org/uploads/default/original/2X/d/d3424bed34f4ec18b2e99178c2801ba6dfb655d6.png",
+  "llm_summary": "The Tor Project has rolled out a quick‑response update (v 0.4.9.17) that patches a denial‑of‑service vulnerability that was being exploited in a prolonged",
+  "source": "Hacker News"
+}

@@ -1,0 +1,9 @@
+{
+  "title": "Signal restricts screenshots to block AI agents from reading messages",
+  "link": "https://www.thehindu.com/sci-tech/technology/signal-restricts-screenshots-to-block-ai-agents-from-reading-messages/article71727329.ece",
+  "summary": "Signal, widely regarded by privacy advocates as a leader in secure ⁠messaging, called its new protections “incomplete”",
+  "published": "Sat, 21 Nov 2026 10:54:56 +0530",
+  "image_url": "https://th-i.thgim.com/public/incoming/cy15mh/article71727332.ece/alternates/LANDSCAPE_1200/2026-11-20T090006Z_1689441161_RC2HROAN9U9Y_RTRMADP_3_AI-AGENT-SIGNAL.JPG",
+  "llm_summary": "Signal has added a new feature that blocks most screenshots of private chats, aiming to keep its encrypted messages out of the reach of AI tools that could automatically read and analyze them. The company says the measure is a step toward protecting users’ data, but even its own engineers admit the fix is “incomplete” and can be bypassed in certain cases",
+  "source": "The Hindu Tech"
+}

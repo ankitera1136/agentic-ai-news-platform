@@ -1,0 +1,9 @@
+{
+  "title": "The pioneering coding tricks that built Doom and Quake",
+  "link": "https://stackoverflow.blog/2026/11/17/coding-tricks-that-built-doom-and-quake/",
+  "summary": "Ryan chats with John Romero, creator of the WAD file and the video game Doom, about the self-modifying code and blitting techniques that made Wolfenstein run so fast on early PCs, the mod-friendly architecture that turned Doom into a cultural phenomenon, and why the raw creative problem-solving of Quake proves that human ideas will always beat AI coding agents.",
+  "published": "Tue, 17 Nov 2026 08:40:00 GMT",
+  "image_url": "https://cdn.stackoverflow.co/images/jo7n4k8s/production/e35a0c5eb319e7928c9ac0a2c2c782d29e644876-3120x1640.png?rect=0,1,3120,1638&w=1200&h=630&auto=format",
+  "llm_summary": "In a candid interview, John Romero explains how self‑modifying code and clever blitting tricks gave early titles like Wolfenstein and Doom their legendary speed on modest PCs, while Doom’s open WAD architecture turned the game into a thriving modding community. He also argues that the bold, hands‑on problem‑solving that produced Quake’s groundbreaking 3D engine shows why human creativity still outpaces even the most",
+  "source": "Stack Overflow Blog"
+}

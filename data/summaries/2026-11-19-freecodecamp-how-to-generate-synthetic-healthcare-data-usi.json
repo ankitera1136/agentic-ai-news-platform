@@ -1,0 +1,9 @@
+{
+  "title": "How to Generate Synthetic Healthcare Data Using Synthea: A Hands On Tutorial",
+  "link": "https://www.freecodecamp.org/news/how-to-generate-synthetic-healthcare-data-using-synthea-a-hands-on-tutorial/",
+  "summary": "Healthcare generates huge amounts of data every day, from patient visits and lab results to diagnoses, medications, and medical imaging. For developers and data engineers building healthcare applicati",
+  "published": "Thu, 19 Nov 2026 22:00:42 +0000",
+  "image_url": "https://cdn.hashnode.com/uploads/covers/5e1e335a7a1d3fcc59028c64/17f495db-a70b-427b-a69d-4b200d573081.png",
+  "llm_summary": "Synthea is an open‑source simulator that can automatically produce realistic, patient‑level health records—covering visits, labs, diagnoses, prescriptions, and even imaging—without exposing any real‑world privacy‑sensitive information. This tutorial walks developers and data",
+  "source": "freeCodeCamp"
+}

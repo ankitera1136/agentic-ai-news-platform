@@ -70,6 +70,7 @@ def _print_summary(stats: BatchStats) -> None:
     print(f"zero-signal:               {stats.zero_signal}")
     print(f"skipped (unchanged/limit): {stats.skipped}")
     print(f"skipped (roundup title):   {stats.skipped_roundup}")
+    print(f"skipped (not career):      {stats.skipped_not_career}")
     print(f"headline-only (no signals): {stats.headline_only}")
     print(f"no cached body (skipped):  {stats.no_body}")
     print(f"not found:                 {stats.not_found}")
@@ -90,6 +91,32 @@ def _print_summary(stats: BatchStats) -> None:
             print(f"  - {company}")
     else:
         print("unknown companies:         none")
+
+
+def _print_dry_run_plan(db, articles) -> None:
+    """Classify the selected articles without any fetch, LLM call or write."""
+    from backend.services.career.extractor import prefilter_enabled
+    from backend.services.career.filters import career_relevance, roundup_reason
+
+    prefilter = prefilter_enabled()
+    counts = {"copy": 0, "roundup": 0, "not_career": 0, "proceed": 0}
+    for article in articles:
+        if article.is_copy_of:
+            counts["copy"] += 1
+        elif roundup_reason(article.title):
+            counts["roundup"] += 1
+        elif prefilter and not career_relevance(article.title, article.summary):
+            counts["not_career"] += 1
+        else:
+            counts["proceed"] += 1
+    print("\n" + "=" * 72)
+    print(f"DRY-RUN PLAN (CAREER_PREFILTER_ENABLED={'true' if prefilter else 'false'})")
+    print("=" * 72)
+    print(f"selected:                              {len(articles)}")
+    print(f"would skip (copy):                     {counts['copy']}")
+    print(f"would skip (roundup title):            {counts['roundup']}")
+    print(f"would skip (not career):               {counts['not_career']}")
+    print(f"would go on to body fetch / LLM:       {counts['proceed']}")
 
 
 def _parse_keywords(value: str) -> List[str]:
@@ -337,6 +364,7 @@ def main() -> int:
             print(f"  - [{article.source or 'Unknown'}] {article.title}")
 
         if args.dry_run:
+            _print_dry_run_plan(db, articles)
             print("\nDry run: no bodies fetched, no LLM calls, no writes.")
             return 0
 

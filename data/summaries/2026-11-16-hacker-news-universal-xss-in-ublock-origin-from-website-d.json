@@ -1,0 +1,9 @@
+{
+  "title": "Universal XSS in uBlock Origin from website-driven element picker",
+  "link": "https://iter.ca/post/ubo-uxss/",
+  "summary": "<p>Article URL: <a href=\"https://iter.ca/post/ubo-uxss/\">https://iter.ca/post/ubo-uxss/</a></p>\n<p>Comments URL: <a href=\"https://news.ycombinator.com/item?id=50513160\">https://news.ycombinator.com/item?id=50513160</a></p>\n<p>Points: 148</p>\n<p># Comments: 32</p>",
+  "published": "Mon, 16 Nov 2026 02:04:48 +0000",
+  "image_url": "",
+  "llm_summary": "A security researcher discovered a universal cross‑site scripting (UXSS) flaw in the popular ad‑blocking extension uBlock Origin. By manipulating the extension’s “element picker” – a tool that lets users select page elements to block – an attacker can inject malicious JavaScript that runs with the extension’s privileges, potentially compromising any browser where uBlock Origin is installed. The bug",
+  "source": "Hacker News"
+}

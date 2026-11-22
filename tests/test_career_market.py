@@ -21,6 +21,7 @@ W45_TUE = datetime(2026, 11, 3, 9, 0, tzinfo=timezone.utc)
 W45_WED = datetime(2026, 11, 4, 9, 0, tzinfo=timezone.utc)
 W46_TUE = datetime(2026, 11, 10, 9, 0, tzinfo=timezone.utc)
 W44_TUE = datetime(2026, 10, 27, 9, 0, tzinfo=timezone.utc)
+W43_TUE = datetime(2026, 10, 20, 9, 0, tzinfo=timezone.utc)
 
 
 class Env:
@@ -351,7 +352,7 @@ def test_global_country_values_mean_no_filter(value):
 # ---------------------------------------------------------------------------
 
 def test_same_company_action_and_week_from_two_articles_counts_once(env):
-    env.add_signal(company="Acme", city="Pune", count=100, confidence=0.8, when=W45_TUE, article_id="a1", title="First")
+    env.add_signal(company="Acme", city="Pune", count=None, confidence=0.8, when=W45_TUE, article_id="a1", title="First")
     env.add_signal(company="Acme", city="Pune", count=120, confidence=0.95, when=W45_WED, article_id="a2", title="Second")
 
     db = env.db()
@@ -369,8 +370,8 @@ def test_same_company_action_and_week_from_two_articles_counts_once(env):
     assert sorted(a["title"] for a in board["companies"][0]["articles"]) == ["First", "Second"]
 
 
-def test_same_company_in_different_weeks_counts_twice(env):
-    env.add_signal(company="Acme", when=W45_TUE, article_id="a1")
+def test_same_company_more_than_14_days_apart_counts_twice(env):
+    env.add_signal(company="Acme", when=W43_TUE, article_id="a1")
     env.add_signal(company="Acme", when=W46_TUE, article_id="a2")
 
     db = env.db()
@@ -435,16 +436,15 @@ def test_dedupe_matches_the_step_3_matching_logic(env):
 # ---------------------------------------------------------------------------
 
 def test_reported_hires_sum_only_signals_with_a_count_and_say_how_many(env):
-    env.add_signal(company="Acme", count=100, when=W44_TUE, article_id="a1")
-    env.add_signal(company="Acme", count=None, when=W45_TUE, article_id="a2")
-    env.add_signal(company="Acme", count=50, when=W46_TUE, article_id="a3")
+    env.add_signal(company="Acme", count=100, when=W43_TUE, article_id="a1")
+    env.add_signal(company="Acme", count=None, when=W45_WED, article_id="a2")   # 15 days later: separate event
 
     db = env.db()
     acme = market.company_board(db, days=30, now=NOW)["companies"][0]
     db.close()
 
-    assert acme["growth"] == 3
-    assert acme["reported_hires"] == {"total": 150, "signals_with_count": 2, "signals": 3}
+    assert acme["growth"] == 2
+    assert acme["reported_hires"] == {"total": 100, "signals_with_count": 1, "signals": 2}
 
 
 def test_reported_hires_is_none_not_zero_when_no_signal_has_a_count(env):
@@ -459,7 +459,7 @@ def test_reported_hires_is_none_not_zero_when_no_signal_has_a_count(env):
 
 
 def test_reported_layoffs_sum_only_layoff_signals_with_counts(env):
-    env.add_signal(company="Acme", action="LAYOFF", count=300, when=W45_TUE, article_id="a1")
+    env.add_signal(company="Acme", action="LAYOFF", count=300, when=W43_TUE, article_id="a1")
     env.add_signal(company="Acme", action="LAYOFF", count=None, when=W46_TUE, article_id="a2")
     env.add_signal(company="Acme", action="HIRING_FREEZE", count=40, when=W46_TUE, article_id="a3")
 
@@ -473,8 +473,8 @@ def test_reported_layoffs_sum_only_layoff_signals_with_counts(env):
 
 def test_net_signal_growing_cutting_and_mixed(env):
     # Growing: 2 growth vs 1 cut
-    env.add_signal(company="Grower", when=W44_TUE, article_id="g1")
-    env.add_signal(company="Grower", when=W45_TUE, article_id="g2")
+    env.add_signal(company="Grower", when=W43_TUE, article_id="g1")
+    env.add_signal(company="Grower", when=W45_WED, article_id="g2")
     env.add_signal(company="Grower", action="LAYOFF", when=W46_TUE, article_id="g3")
     # Cutting: 1 growth vs 2 cuts
     env.add_signal(company="Cutter", action="LAYOFF", when=W44_TUE, article_id="c1")
@@ -516,7 +516,7 @@ def test_board_limit_sorting_and_article_cap(env):
 
 
 def test_company_aliases_merge_on_the_board(env):
-    env.add_signal(company="TCS", when=W44_TUE, article_id="a1")
+    env.add_signal(company="TCS", when=W43_TUE, article_id="a1")
     env.add_signal(company="Tata Consultancy Services", when=W46_TUE, article_id="a2")
 
     db = env.db()
@@ -724,3 +724,117 @@ def test_map_failures_distinguish_a_missing_library_from_a_drawing_error():
     html = _page()
     assert "its library did not load" in html
     assert "loaded but could not be drawn" in html
+
+
+# ---------------------------------------------------------------------------
+# merged events: same company + action within 14 days, equal-or-missing counts, MAX count
+# ---------------------------------------------------------------------------
+
+D_NOV5 = datetime(2026, 11, 5, 9, 0, tzinfo=timezone.utc)
+D_NOV15 = datetime(2026, 11, 15, 9, 0, tzinfo=timezone.utc)   # 10 days after Nov 5, a different ISO week
+
+
+def _company(board, name):
+    return next(c for c in board["companies"] if c["company"] == name)
+
+
+def _board(env):
+    db = env.db()
+    try:
+        return market.company_board(db, days=60, now=NOW)
+    finally:
+        db.close()
+
+
+def test_canva_reported_on_5_and_15_nov_is_one_event_with_1271(env):
+    env.add_signal(company="Canva", action="LAYOFF", count=1271, article_id="canva-ie", when=D_NOV5, city=None, country=None)
+    env.add_signal(company="Canva", action="LAYOFF", count=1271, article_id="canva-hrk", when=D_NOV15, city=None, country=None)
+    canva = _company(_board(env), "Canva")
+    assert canva["reported_layoffs"] == {"total": 1271, "signals_with_count": 1, "signals": 1}   # not 2542
+    assert canva["cuts"] == 1
+    assert canva["reported_by_articles"] == 2
+    assert len(canva["articles"]) == 2
+
+
+def test_different_non_null_counts_within_14_days_stay_separate(env):
+    env.add_signal(company="Acme", action="LAYOFF", count=800, article_id="a1", when=W45_TUE)
+    env.add_signal(company="Acme", action="LAYOFF", count=1000, article_id="a2", when=W45_WED)
+    acme = _company(_board(env), "Acme")
+    assert acme["cuts"] == 2
+    assert acme["reported_layoffs"]["total"] == 1800 and acme["reported_layoffs"]["signals"] == 2
+
+
+def test_equal_counts_30_days_apart_stay_separate(env):
+    env.add_signal(company="Acme", action="LAYOFF", count=500, article_id="a1", when=datetime(2026, 10, 16, 9, 0, tzinfo=timezone.utc))
+    env.add_signal(company="Acme", action="LAYOFF", count=500, article_id="a2", when=D_NOV15)
+    acme = _company(_board(env), "Acme")
+    assert acme["cuts"] == 2
+    assert acme["reported_layoffs"]["total"] == 1000
+
+
+def test_null_count_and_1000_merge_to_1000(env):
+    env.add_signal(company="Qualcomm", action="LAYOFF", count=None, article_id="q1", when=W45_TUE, confidence=0.99)
+    env.add_signal(company="Qualcomm", action="LAYOFF", count=1000, article_id="q2", when=W46_TUE)
+    q = _company(_board(env), "Qualcomm")
+    assert q["cuts"] == 1
+    assert q["reported_layoffs"] == {"total": 1000, "signals_with_count": 1, "signals": 1}
+    assert q["reported_by_articles"] == 2
+
+
+def test_window_is_measured_from_the_first_article_of_the_event(env):
+    # Day 0, day 10 and day 20: day 20 is more than 14 days after the first, so it is a new event.
+    start = datetime(2026, 10, 20, 9, 0, tzinfo=timezone.utc)
+    for i, offset in enumerate((0, 10, 20)):
+        env.add_signal(company="Acme", action="LAYOFF", article_id=f"w{i}", when=start + timedelta(days=offset))
+    assert _company(_board(env), "Acme")["cuts"] == 2
+
+
+def test_qualcomm_pattern_across_weeks_43_46_47(env):
+    env.add_signal(company="Qualcomm", action="LAYOFF", article_id="ie", when=datetime(2026, 10, 21, 4, 0, tzinfo=timezone.utc))
+    env.add_signal(company="Qualcomm", action="LAYOFF", article_id="hrk", when=datetime(2026, 11, 11, 5, 0, tzinfo=timezone.utc))
+    env.add_signal(company="Qualcomm", action="LAYOFF", article_id="mint", when=datetime(2026, 11, 15, 16, 0, tzinfo=timezone.utc), count=1000)
+    env.add_signal(company="Qualcomm", action="LAYOFF", article_id="hrk2", when=datetime(2026, 11, 15, 20, 0, tzinfo=timezone.utc))
+    q = _company(_board(env), "Qualcomm")
+    assert q["cuts"] == 2                      # week 43 memo; weeks 46/47 rollout merged
+    assert q["reported_layoffs"]["total"] == 1000
+    assert q["reported_by_articles"] == 4
+
+
+def test_different_actions_never_merge(env):
+    env.add_signal(company="Acme", action="LAYOFF", count=100, article_id="a1", when=W45_TUE)
+    env.add_signal(company="Acme", action="HIRING", count=40, article_id="a2", when=W45_TUE)
+    acme = _company(_board(env), "Acme")
+    assert acme["reported_layoffs"]["total"] == 100 and acme["reported_hires"]["total"] == 40
+
+
+def test_heatmap_uses_the_merged_count_too(env):
+    env.add_signal(company="Canva", action="LAYOFF", count=1271, article_id="c1", when=D_NOV5, city="Sydney", country="Australia")
+    env.add_signal(company="Canva", action="LAYOFF", count=1271, article_id="c2", when=D_NOV15, city="Sydney", country="Australia")
+    db = env.db()
+    try:
+        data = market.heatmap_points(db, days=60, now=NOW)
+    finally:
+        db.close()
+    assert [p["reported_layoffs"]["total"] for p in data["points"]] == [1271]
+
+
+def test_demand_signals_use_the_same_merge_and_agree_with_the_board(env):
+    env.add_signal(company="Acme", action="HIRING", count=500, article_id="h1", when=W45_TUE)
+    env.add_signal(company="Acme", action="HIRING", count=500, article_id="h2", when=W46_TUE)      # same event, next week
+    env.add_signal(company="Acme", action="HIRING", count=300, article_id="h3", when=W46_TUE)      # conflicting count: separate
+    db = env.db()
+    try:
+        signals = matching.load_demand_signals(db, days=60, now=NOW)
+        board = market.company_board(db, days=60, now=NOW)
+    finally:
+        db.close()
+    assert sorted(s.count for s in signals) == [300, 500]
+    acme = _company(board, "Acme")
+    assert acme["growth"] == len(signals) == 2
+    assert acme["reported_hires"]["total"] == 800
+
+
+def test_merge_events_function_is_shared(env):
+    import inspect
+    assert "merge_events" in inspect.getsource(market._load_market_signals)
+    assert "merge_events" in inspect.getsource(matching.load_demand_signals)

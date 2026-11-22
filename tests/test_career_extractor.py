@@ -588,7 +588,7 @@ def test_prompt_version_is_part_of_content_hash(monkeypatch):
 def test_prompt_version_is_v4():
     from backend.services.career.prompt import PROMPT_VERSION
 
-    assert PROMPT_VERSION == "v4"
+    assert PROMPT_VERSION == "v5"
 
 
 def test_prompt_does_not_offer_other_action():

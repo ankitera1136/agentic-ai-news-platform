@@ -1,0 +1,9 @@
+{
+  "title": "Researcher plants 2m canaries into the AI supply chain. A privacy disaster surfaced.",
+  "link": "https://arstechnica.com/security/2026/11/a-leaky-ai-supply-chain-is-exposing-secret-user-data-at-an-alarming-rate/",
+  "summary": "Test using prompts with unique, trackable secrets proves that data doesn't stay private.",
+  "published": "Fri, 20 Nov 2026 20:59:08 +0000",
+  "image_url": "https://cdn.arstechnica.net/wp-content/uploads/2026/11/ai-privacy-leakage-1152x648.jpg",
+  "llm_summary": "A researcher embedded 2 million “canary” prompts—each containing a unique, traceable secret—into the training data of several popular AI models. By later querying the models with those exact prompts, they showed that the hidden secrets were reliably reproduced, proving that",
+  "source": "Ars Technica"
+}

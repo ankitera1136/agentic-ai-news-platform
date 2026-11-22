@@ -32,12 +32,15 @@ from backend.services.career.body_fetcher import (
 from backend.services.career.grounding import (
     DropCounters,
     clamp_confidence,
+    clean_job_title_skills,
+    count_is_estimated,
+    drop_generic_skills,
     ground_count,
     ground_location,
     ground_skills,
     verify_quote,
 )
-from backend.services.career.filters import roundup_reason
+from backend.services.career.filters import FILTER_VERSION, career_relevance, roundup_reason
 from backend.services.career.normalizer import normalize_company
 from backend.services.career.prompt import (
     CAREER_RETRY_PROMPT,
@@ -65,6 +68,8 @@ MIN_CONFIDENCE = 0.5
 DEFAULT_LLM_CALL_DELAY_SECONDS = 1.0
 # Ledger text_source used for articles skipped by the title filter (no body, no LLM call).
 ROUNDUP_TEXT_SOURCE = "skipped_roundup"
+# Ledger text_source for articles the career pre-filter rejected (no body, no LLM call).
+NOT_CAREER_TEXT_SOURCE = "skipped_not_career"
 HEADLINE_ONLY_REASON = "headline_only"
 MIN_TEXT_CHARS = 30
 MAX_LLM_ATTEMPTS = 3
@@ -81,7 +86,7 @@ EXTRACTION_VERSION = "career-v2"
 class ArticleOutcome:
     article_id: str
     title: str
-    status: str  # succeeded | failed | skipped | skipped_roundup | no_body | not_found
+    status: str  # succeeded | failed | skipped | skipped_roundup | skipped_not_career | no_body | not_found
     signals_count: int = 0
     text_source: Optional[str] = None
     body_length: int = 0
@@ -98,6 +103,7 @@ class BatchStats:
     zero_signal: int = 0
     skipped: int = 0
     skipped_roundup: int = 0
+    skipped_not_career: int = 0
     headline_only: int = 0
     no_body: int = 0
     not_found: int = 0
@@ -120,6 +126,8 @@ class BatchStats:
             self.skipped += 1
         elif outcome.status == "skipped_roundup":
             self.skipped_roundup += 1
+        elif outcome.status == "skipped_not_career":
+            self.skipped_not_career += 1
         elif outcome.status == "no_body":
             self.no_body += 1
         elif outcome.status == "not_found":
@@ -139,12 +147,18 @@ class BatchStats:
             "zero_signal": self.zero_signal,
             "skipped": self.skipped,
             "skipped_roundup": self.skipped_roundup,
+            "skipped_not_career": self.skipped_not_career,
             "headline_only": self.headline_only,
             "no_body": self.no_body,
             "not_found": self.not_found,
             "dropped": self.dropped.as_dict(),
             "unknown_companies": sorted(set(self.unknown_companies)),
         }
+
+
+def prefilter_enabled() -> bool:
+    """CAREER_PREFILTER_ENABLED, read at call time. Default: off."""
+    return os.getenv("CAREER_PREFILTER_ENABLED", "false").strip().lower() in ("1", "true", "yes", "on")
 
 
 def default_batch_limit() -> int:
@@ -343,6 +357,12 @@ class CareerExtractor:
         reason = roundup_reason(title)
         if reason:
             return self._skip_roundup(db, article, reason)
+
+        # Career pre-filter (opt-in): also runs before any body fetch or LLM call.
+        if prefilter_enabled():
+            skipped = self._prefilter_skip(db, article)
+            if skipped is not None:
+                return skipped
 
         context = ensure_article_body(
             db,
@@ -631,6 +651,10 @@ class CareerExtractor:
                 continue
 
             count, count_reason = ground_count(raw.count, source_text, quote)
+            if count is not None and count_is_estimated(count, quote):
+                # Deterministic: an estimated number is not a stated count.
+                count = None
+                counters.add("estimated_count")
             if count_reason == "percentage":
                 counters.add("count_percentage")
             elif count_reason:
@@ -642,7 +666,16 @@ class CareerExtractor:
             if location_dropped:
                 counters.add("location_not_grounded")
 
-            skills, dropped_skills = ground_skills(raw.skills_mentioned, source_text)
+            title_free_skills, title_drops = clean_job_title_skills(raw.skills_mentioned)
+            if title_drops:
+                counters.add("job_title_skill", title_drops)
+            specific_skills, generic_drops = drop_generic_skills(title_free_skills)
+            if generic_drops:
+                counters.add("generic_skill", generic_drops)
+            skills, dropped_skills = ground_skills(specific_skills, source_text)
+            if action in ("LAYOFF", "HIRING_FREEZE"):
+                # Skill demand ignores these actions; a layoff article's skills are noise.
+                skills, dropped_skills = [], []
             if dropped_skills:
                 counters.add("skill_not_grounded", len(dropped_skills))
 
@@ -714,6 +747,59 @@ class CareerExtractor:
         return ArticleOutcome(
             article.id, title, "skipped_roundup",
             text_source=ROUNDUP_TEXT_SOURCE, error=f"roundup:{reason}",
+        )
+
+    def _prefilter_skip(self, db: Session, article: Article) -> Optional[ArticleOutcome]:
+        """Return a skipped_not_career outcome when the article is not career news, else None.
+
+        The ledger hash includes FILTER_VERSION, so bumping the version re-opens these
+        rows. Articles that already have a real extraction result are left untouched.
+        """
+        title = article.title or ""
+        if career_relevance(title, article.summary):
+            return None
+
+        existing = get_extraction(db, article.id)
+        if (
+            existing
+            and existing.status == "succeeded"
+            and existing.text_source != NOT_CAREER_TEXT_SOURCE
+        ):
+            # Already extracted (or deliberately recorded) by the normal path: keep it.
+            return ArticleOutcome(article.id, title, "skipped", error="already_processed")
+
+        content_hash = compute_content_hash(
+            NOT_CAREER_TEXT_SOURCE, f"{FILTER_VERSION}\n{title}\n{article.summary or ''}"
+        )
+        already_recorded = bool(
+            existing
+            and existing.status == "succeeded"
+            and existing.content_hash == content_hash
+        )
+        if not already_recorded:
+            try:
+                upsert_extraction(
+                    db,
+                    article.id,
+                    content_hash=content_hash,
+                    text_source=NOT_CAREER_TEXT_SOURCE,
+                    status="succeeded",
+                    attempts=(existing.attempts or 0) + 1 if existing else 1,
+                    model_used=None,
+                    signals_count=0,
+                    error=None,
+                )
+                db.commit()
+            except Exception as exc:
+                db.rollback()
+                logger.exception("CareerRadar pre-filter persistence failed for article %s", article.id)
+                return ArticleOutcome(
+                    article.id, title, "failed",
+                    error=f"persistence_error:{type(exc).__name__}",
+                )
+        return ArticleOutcome(
+            article.id, title, "skipped_not_career",
+            text_source=NOT_CAREER_TEXT_SOURCE, error="not_career",
         )
 
     def _persist_zero_signal(

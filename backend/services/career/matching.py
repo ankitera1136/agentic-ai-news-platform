@@ -6,7 +6,7 @@ calls an LLM, reads article bodies, or invents data: every number is a count of 
 Pipeline:
 1. Load HIRING / EXPANSION / NEW_OFFICE signals with timing current or planned.
 2. Keep those whose article date falls inside the requested window.
-3. Collapse signals with the same company + action + ISO week into one (across articles).
+3. Merge signals for the same company + action within 14 days into one event (across articles and weeks).
 4. Count skills and match them against a student profile.
 """
 from dataclasses import dataclass, field
@@ -120,6 +120,61 @@ def clean_skill_list(skills: Optional[Iterable[Any]]) -> List[str]:
     return out
 
 
+def merged_count(members) -> Optional[int]:
+    """Count for signals merged into one event (see merge_events).
+
+    Several articles about the same event state the same number, so the merged count is the
+    MAX stated count, never the sum. None when no member states one.
+    """
+    counts = [m[0].count for m in members if m[0].count is not None]
+    return max(counts) if counts else None
+
+
+EVENT_MERGE_DAYS = 14
+
+MERGE_NOTE = (
+    "Each signal is one event: the same company and action reported within 14 days counts once, "
+    "however many articles covered it. Counts that disagree are kept as separate events."
+)
+
+
+def merge_events(items, window_days: int = EVENT_MERGE_DAYS):
+    """Group (signal, article, event_date) triples into events. Shared by matching.py and market.py.
+
+    Triples with the same canonical company and the same action belong to one event when their
+    event dates are within `window_days` of the event's first date (even across ISO weeks), and
+    their stated counts are equal or at least one is missing. Triples whose stated counts differ
+    stay in separate events. Returns a list of member lists; members are in date order.
+    """
+    by_key: Dict[Tuple[str, str], List[Tuple[CareerSignal, Article, datetime]]] = {}
+    for item in items:
+        signal = item[0]
+        by_key.setdefault((_company_key(signal.company), signal.action), []).append(item)
+
+    events: List[List[Tuple[CareerSignal, Article, datetime]]] = []
+    window_seconds = window_days * 86400
+    for members in by_key.values():
+        members.sort(key=lambda m: (m[2], m[0].id))
+        clusters: List[Dict[str, Any]] = []
+        for member in members:
+            count = member[0].count
+            target = None
+            for cluster in clusters:  # earliest compatible event wins (deterministic)
+                if (member[2] - cluster["start"]).total_seconds() > window_seconds:
+                    continue
+                if count is None or cluster["count"] is None or cluster["count"] == count:
+                    target = cluster
+                    break
+            if target is None:
+                clusters.append({"start": member[2], "count": count, "members": [member]})
+            else:
+                target["members"].append(member)
+                if target["count"] is None:
+                    target["count"] = count
+        events.extend(cluster["members"] for cluster in clusters)
+    return events
+
+
 def _company_key(name: str) -> str:
     canonical = normalize_company(name).canonical or (name or "")
     return canonical.casefold()
@@ -142,7 +197,7 @@ def load_demand_signals(
     days: int = 30,
     now: Optional[datetime] = None,
 ) -> List[DedupedSignal]:
-    """Eligible signals inside the window, deduped by company + action + ISO week."""
+    """Eligible signals inside the window, merged into events (see merge_events)."""
     now_utc = _as_utc(now) or datetime.now(timezone.utc)
     cutoff = now_utc - timedelta(days=days)
 
@@ -153,17 +208,16 @@ def load_demand_signals(
         .all()
     )
 
-    groups: Dict[Tuple[str, str, int, int], List[Tuple[CareerSignal, Article, datetime]]] = {}
+    eligible = []
     for signal, article in rows:
         event = _event_date(article, signal)
         if event < cutoff or event > now_utc + timedelta(days=1):
             continue
-        iso_year, iso_week, _ = event.isocalendar()
-        key = (_company_key(signal.company), signal.action, iso_year, iso_week)
-        groups.setdefault(key, []).append((signal, article, event))
+        eligible.append((signal, article, event))
+    groups = merge_events(eligible)
 
     deduped: List[DedupedSignal] = []
-    for members in groups.values():
+    for members in groups:
         # Highest confidence wins; ties go to the newest event, then the lowest id (deterministic).
         members.sort(key=lambda m: (-(m[0].confidence or 0.0), -m[2].timestamp(), m[0].id))
         best, best_article, best_event = members[0]
@@ -186,7 +240,7 @@ def load_demand_signals(
                 company=company,
                 action=best.action,
                 timing=best.timing,
-                count=best.count,
+                count=merged_count(members),
                 location_city=best.location_city,
                 location_country=best.location_country,
                 skills=merged_skills,

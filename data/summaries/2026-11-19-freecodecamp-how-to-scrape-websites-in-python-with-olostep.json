@@ -1,0 +1,9 @@
+{
+  "title": "How to Scrape Websites in Python with Olostep",
+  "link": "https://www.freecodecamp.org/news/how-to-scrape-websites-in-python-with-olostep/",
+  "summary": "Web scraping in Python usually starts with requests and Beautiful Soup. While this works well for static pages, it gets harder when a site loads content with JavaScript, blocks repeated requests, or c",
+  "published": "Thu, 19 Nov 2026 17:54:42 +0000",
+  "image_url": "https://cdn.hashnode.com/uploads/covers/5e1e335a7a1d3fcc59028c64/b1f48704-57ee-42f1-8687-766ff3abb630.png",
+  "llm_summary": "Web scraping in Python typically begins with the `requests` library and Beautiful Soup, which work great for static pages. However, many modern sites load data via JavaScript, detect repeated requests, or employ anti‑scraping measures, making simple HTTP calls insufficient. The article explains how to overcome these challenges using Olostep, a Python tool that can render JavaScript, rotate proxies, and handle other obstacles to reliably extract data from",
+  "source": "freeCodeCamp"
+}

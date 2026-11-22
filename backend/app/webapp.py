@@ -34,6 +34,7 @@ from backend.app.models import User, Category, Article, ArticleCategory, UserSub
 from backend.app.schemas import *
 from backend.app.groq_client import call_groq, get_live_groq_models
 from backend.services.digest_service import digest_service
+from backend.services.excerpt import RESTRICTED_EXCERPT_SOURCES as RESTRICTED_SOURCES, public_summary
 from backend.services.categorization_service import categorizer
 from backend.services.history_service import history_service
 from backend.services.contradiction_engine import contradiction_engine
@@ -566,6 +567,16 @@ async def get_digest_history(
     return digest_logs
 
 # Articles endpoints
+def _article_response(article) -> "ArticleResponse":
+    """ArticleResponse whose `summary` follows the public-summary policy (restricted sources
+    such as HRKatha never expose the raw RSS excerpt)."""
+    response = ArticleResponse.model_validate(article)
+    safe = public_summary(getattr(article, "source", None), article.summary, article.llm_summary)
+    if getattr(article, "source", None) in RESTRICTED_SOURCES:
+        response = response.model_copy(update={"summary": safe})
+    return response
+
+
 @app.get("/articles", response_model=List[ArticleResponse])
 async def get_articles(
     category_id: Optional[int] = None,
@@ -579,7 +590,7 @@ async def get_articles(
         query = query.join(ArticleCategory).filter(ArticleCategory.category_id == category_id)
     
     articles = query.order_by(Article.created_at.desc()).limit(limit).all()
-    return articles
+    return [_article_response(a) for a in articles]
 
 @app.get("/articles/personalized", response_model=List[ArticleResponse])
 async def get_personalized_articles(
@@ -603,7 +614,7 @@ async def get_personalized_articles(
             seen.add(article.id)
             unique_articles.append(article)
     
-    return unique_articles[:limit]
+    return [_article_response(a) for a in unique_articles[:limit]]
 
 @app.get("/dashboard", response_class=HTMLResponse)
 async def dashboard(request: Request):
@@ -686,7 +697,7 @@ def get_articles_feed(
             'id': art.id,
             'title': art.title,
             'link': art.link,
-            'summary': art.summary or '',
+            'summary': public_summary(art.source, art.summary, art.llm_summary),
             'llm_summary': art.llm_summary or '',
             'published': format_published_ist(art.published, art.created_at),
             'image_url': art.image_url or PLACEHOLDER_IMAGE,
@@ -727,7 +738,7 @@ async def cross_check_article_facts(article_id: str, db: Session = Depends(get_d
     target_dict = {
         "id": target.id,
         "title": target.title,
-        "summary": target.summary or "",
+        "summary": public_summary(getattr(target, 'source', None), target.summary, target.llm_summary),
         "llm_summary": target.llm_summary or "",
         "source": getattr(target, 'source', 'TechNews') or 'TechNews',
         "published": format_published_ist(target.published, target.created_at)
@@ -746,7 +757,7 @@ async def cross_check_article_facts(article_id: str, db: Session = Depends(get_d
             related_articles.append({
                 "id": mem.id,
                 "title": mem.title,
-                "summary": mem.summary or "",
+                "summary": public_summary(getattr(mem, 'source', None), mem.summary, mem.llm_summary),
                 "llm_summary": mem.llm_summary or "",
                 "source": getattr(mem, 'source', 'TechNews') or 'TechNews',
                 "published": format_published_ist(mem.published, mem.created_at),
@@ -777,7 +788,7 @@ async def cross_check_article_facts(article_id: str, db: Session = Depends(get_d
                 related_articles.append({
                     "id": cand.id,
                     "title": cand.title,
-                    "summary": cand.summary or "",
+                    "summary": public_summary(getattr(cand, 'source', None), cand.summary, cand.llm_summary),
                     "llm_summary": cand.llm_summary or "",
                     "source": getattr(cand, 'source', 'TechNews') or 'TechNews',
                     "published": format_published_ist(cand.published, cand.created_at)
@@ -807,7 +818,7 @@ def get_cluster_articles(cluster_id: int, db: Session = Depends(get_db)):
             "link": a.link,
             "source": getattr(a, "source", "TechNews") or "TechNews",
             "published": format_published_ist(a.published, a.created_at),
-            "summary": a.llm_summary or a.summary or "",
+            "summary": a.llm_summary or public_summary(a.source, a.summary, a.llm_summary),
             "is_copy": bool(a.is_copy_of)
         }
         for a in arts
@@ -850,7 +861,7 @@ def read_cards(request: Request, db: Session = Depends(get_db)):
             'id': art.id,
             'title': art.title,
             'link': art.link,
-            'summary': art.summary or '',
+            'summary': public_summary(art.source, art.summary, art.llm_summary),
             'llm_summary': art.llm_summary or '',
             'published': format_published_ist(art.published, art.created_at),
             'image_url': art.image_url or PLACEHOLDER_IMAGE,
@@ -880,7 +891,7 @@ async def chat_endpoint(request: Request, db: Session = Depends(get_db)):
             articles.append({
                 'id': a.id,
                 'title': a.title,
-                'summary': a.summary or '',
+                'summary': public_summary(a.source, a.summary, a.llm_summary),
                 'llm_summary': a.llm_summary or '',
                 'link': a.link,
                 'source': a.source
@@ -892,6 +903,9 @@ async def chat_endpoint(request: Request, db: Session = Depends(get_db)):
                 if filename.endswith('.json'):
                     with open(os.path.join(SUMMARIES_DIR, filename), 'r', encoding='utf-8') as f:
                         article = json.load(f)
+                    article['summary'] = public_summary(
+                        article.get('source'), article.get('summary'), article.get('llm_summary')
+                    )
                     articles.append(article)
                 
     # Combine question with previous user message for search context
